@@ -9,6 +9,9 @@ module.exports = {
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
       },
       colors: {
+        teal: '#00B4B4',
+        sky: '#00AEEF',
+        navy: '#003865',
         primary: {
           50: '#eff6ff',
           100: '#dbeafe',

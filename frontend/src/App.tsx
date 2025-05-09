@@ -152,7 +152,7 @@ function App() {
                     data={data.eventsByType}
                     xKey="eventName"
                     yKey="count"
-                    name="Count"
+                    name="Occurrences"
                   />
                 ) : (
                   <p className="text-gray-500 text-center mt-10">No data available</p>

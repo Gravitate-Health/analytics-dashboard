@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 
 // Array di colori per i grafici
-const COLORS = ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#dbeafe', '#1d4ed8', '#1e40af', '#1e3a8a'];
+const COLORS = ['#00B4B4', '#00AEEF', '#003865', '#7ED6DF', '#EAB543'];
 
 interface ChartProps {
   type: 'line' | 'bar' | 'pie';
@@ -52,10 +52,10 @@ const EventChart: React.FC<ChartProps> = ({ type, data, xKey, yKey, nameKey, dat
               type="monotone" 
               dataKey={yKey} 
               name={name || yKey}
-              stroke="#2563eb" 
+              stroke="#00B4B4" 
               strokeWidth={2}
-              dot={{ fill: '#2563eb', r: 4 }}
-              activeDot={{ r: 6, stroke: '#1e40af', strokeWidth: 2 }}
+              dot={{ fill: '#00B4B4', r: 4 }}
+              activeDot={{ r: 6, stroke: '#003865', strokeWidth: 2 }}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -91,9 +91,10 @@ const EventChart: React.FC<ChartProps> = ({ type, data, xKey, yKey, nameKey, dat
             <Bar
               dataKey={yKey ?? 'count'}
               name={name ?? yKey ?? 'Valore'}
-              fill="#3b82f6"
+              fill="#00AEEF"
               radius={[4, 4, 0, 0]}
             />
+
           </BarChart>
         </ResponsiveContainer>
       );
