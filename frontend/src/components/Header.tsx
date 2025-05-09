@@ -14,7 +14,7 @@ const Header: React.FC = () => {
         </div>
         <div className="hidden md:block">
           <div className="flex items-center space-x-2 text-sm">
-            <span className="text-gray-500">Period:</span>
+            <span className="text-gray-500">Period time:</span>
             <span className="font-medium text-gray-700">Last 30 days</span>
           </div>
         </div>

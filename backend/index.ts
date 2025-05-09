@@ -21,8 +21,8 @@ app.get('/api/eventi', async (req, res) => {
     const eventName = req.query.nome as string;
 
     if (eventName) {
-      const filtered = await getEventDetails(eventName, startDate, endDate);
-      return res.json({ filtered });
+      const { eventsByDate, eventsByPlatform } = await getEventDetails(eventName, startDate, endDate);
+      return res.json({ eventsByDate, eventsByPlatform });
     }
 
     const analyticsData = await getAnalyticsData(startDate, endDate);

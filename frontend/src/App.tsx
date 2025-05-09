@@ -35,6 +35,7 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [selectedEvent, setSelectedEvent] = useState('');
   const [filteredEventData, setFilteredEventData] = useState<EventByDate[]>([]);
+  const [filteredPlatformData, setFilteredPlatformData] = useState<EventByPlatform[]>([]);
 
 
   useEffect(() => {
@@ -44,8 +45,8 @@ function App() {
   
         if (selectedEvent) {
           const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/eventi?nome=${selectedEvent}`);
-          setFilteredEventData(response.data.filtered);
-          setData(null); // evitiamo di mostrare anche i dati aggregati
+          setFilteredEventData(response.data.eventsByDate);
+          setFilteredPlatformData(response.data.eventsByPlatform);
         } else {
           const analyticsData = await fetchAnalyticsData();
           setData(analyticsData);
@@ -160,22 +161,34 @@ function App() {
               </div>
             </div>
             
-            {/* Eventi per piattaforma (Pie Chart) */}
-            <div className="col-span-1 bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800">Events by platform</h2>
-              <div className="h-64">
-                {data.eventsByPlatform.length > 0 ? (
-                  <EventChart 
-                    type="pie" 
-                    data={data.eventsByPlatform}
-                    nameKey="platform"
-                    dataKey="count"
-                  />
-                ) : (
-                  <p className="text-gray-500 text-center mt-10">No data available</p>
-                )}
-              </div>
-            </div>
+            {/* Platform breakdown */}
+<div className="col-span-1 bg-white rounded-lg shadow p-6">
+  <h2 className="text-xl font-semibold mb-4 text-gray-800">
+    {selectedEvent ? `Platform Distribution – ${selectedEvent}` : 'Events by Platform'}
+  </h2>
+
+  <div className="h-64">
+    {filteredPlatformData.length > 0 ? (
+      <EventChart 
+        type="pie" 
+        data={filteredPlatformData}
+        nameKey="platform"
+        dataKey="count"
+      />
+    ) : data?.eventsByPlatform?.length > 0 ? (
+      <EventChart 
+        type="pie" 
+        data={data.eventsByPlatform}
+        nameKey="platform"
+        dataKey="count"
+      />
+    ) : (
+      <p className="text-gray-500 text-center mt-10">No data available</p>
+    )}
+  </div>
+</div>
+
+            
           </div>
         )}
       </main>

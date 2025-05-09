@@ -110,14 +110,11 @@ export async function getEventDetails(eventName: string, startDate: string, endD
     keyFilename: serviceAccountPath,
   });
 
-  const [response] = await analyticsDataClient.runReport({
+  // Eventi per giorno (line chart)
+  const [byDateResponse] = await analyticsDataClient.runReport({
     property: `properties/${GA4_PROPERTY_ID}`,
     dateRanges: [{ startDate, endDate }],
-    dimensions: [
-      { name: 'eventName' },
-      { name: 'date' },
-      { name: 'platform' }
-    ],
+    dimensions: [{ name: 'date' }],
     metrics: [{ name: 'eventCount' }],
     dimensionFilter: {
       filter: {
@@ -130,9 +127,32 @@ export async function getEventDetails(eventName: string, startDate: string, endD
     },
   });
 
-  return response.rows?.map(row => ({
-    date: row.dimensionValues?.[1]?.value || '',
-    platform: row.dimensionValues?.[2]?.value || '',
+  const eventsByDate = byDateResponse.rows?.map((row) => ({
+    date: row.dimensionValues?.[0]?.value || '',
     count: parseInt(row.metricValues?.[0]?.value || '0', 10),
   })) || [];
+
+  // Eventi per piattaforma (pie chart)
+  const [byPlatformResponse] = await analyticsDataClient.runReport({
+    property: `properties/${GA4_PROPERTY_ID}`,
+    dateRanges: [{ startDate, endDate }],
+    dimensions: [{ name: 'platform' }],
+    metrics: [{ name: 'eventCount' }],
+    dimensionFilter: {
+      filter: {
+        fieldName: 'eventName',
+        stringFilter: {
+          matchType: 'EXACT',
+          value: eventName,
+        },
+      },
+    },
+  });
+
+  const eventsByPlatform = byPlatformResponse.rows?.map((row) => ({
+    platform: row.dimensionValues?.[0]?.value || '',
+    count: parseInt(row.metricValues?.[0]?.value || '0', 10),
+  })) || [];
+
+  return { eventsByDate, eventsByPlatform };
 }
