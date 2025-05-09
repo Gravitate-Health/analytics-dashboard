@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { getAnalyticsData } from './analytics';
+import { getAnalyticsData, getEventDetails } from './analytics';
 
 // Carica le variabili d'ambiente dal file .env
 dotenv.config();
@@ -16,17 +16,22 @@ app.use(cors());
 // Endpoint per recuperare i dati degli eventi
 app.get('/api/eventi', async (req, res) => {
   try {
-    // Periodo predefinito: ultimi 30 giorni
     const startDate = req.query.startDate as string || '30daysAgo';
     const endDate = req.query.endDate as string || 'today';
+    const eventName = req.query.nome as string;
+
+    if (eventName) {
+      const filtered = await getEventDetails(eventName, startDate, endDate);
+      return res.json({ filtered });
+    }
 
     const analyticsData = await getAnalyticsData(startDate, endDate);
     res.json(analyticsData);
   } catch (error) {
     console.error('Errore durante il recupero dei dati:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Errore durante il recupero dei dati di Analytics',
-      message: error instanceof Error ? error.message : 'Errore sconosciuto'
+      message: error instanceof Error ? error.message : 'Errore sconosciuto',
     });
   }
 });

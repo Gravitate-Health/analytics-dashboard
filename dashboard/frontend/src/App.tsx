@@ -3,6 +3,9 @@ import Header from './components/Header';
 import EventChart from './components/EventChart';
 import { fetchAnalyticsData } from './utils/fetchData';
 import './App.css';
+import EventSelector from './components/EventSelector';
+import axios from 'axios';
+
 
 // Interfacce per i tipi di dati
 export interface EventByDate {
@@ -30,13 +33,25 @@ function App() {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState('');
+  const [filteredEventData, setFilteredEventData] = useState<EventByDate[]>([]);
+
 
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const analyticsData = await fetchAnalyticsData();
-        setData(analyticsData);
+  
+        if (selectedEvent) {
+          const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/eventi?nome=${selectedEvent}`);
+          setFilteredEventData(response.data.filtered);
+          setData(null); // evitiamo di mostrare anche i dati aggregati
+        } else {
+          const analyticsData = await fetchAnalyticsData();
+          setData(analyticsData);
+          setFilteredEventData([]);
+        }
+  
         setError(null);
       } catch (err) {
         setError('Errore durante il caricamento dei dati. Riprova più tardi.');
@@ -45,9 +60,9 @@ function App() {
         setLoading(false);
       }
     };
-
+  
     loadData();
-  }, []);
+  }, [selectedEvent]);  
 
   const formatDate = (dateString: string): string => {
     // Formatta date nel formato YYYYMMDD a DD/MM/YYYY
@@ -89,32 +104,47 @@ function App() {
           !data.eventsByPlatform.length
         ) ? (
           <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
-            <strong className="font-bold">Nessun dato disponibile.</strong>
-            <span className="block sm:inline"> Non ci sono eventi da visualizzare nel periodo selezionato.</span>
+            <strong className="font-bold">No data available</strong>
+            <span className="block sm:inline"> There are no events to display in the selected period.</span>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Eventi per giorno (Line Chart) */}
             <div className="col-span-1 lg:col-span-3 bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800">Eventi per Giorno</h2>
+              <h2 className="text-xl font-semibold mb-4 text-gray-800">Events</h2>
+
+              <EventSelector
+                eventList={data?.eventsByType.map(e => e.eventName) || []}
+                selectedEvent={selectedEvent}
+                onChange={setSelectedEvent}
+              />
+
               <div className="h-64">
-                {data.eventsByDate.length > 0 ? (
+                {filteredEventData.length > 0 ? (
+                  <EventChart 
+                    type="line" 
+                    data={prepareEventsByDateData(filteredEventData)}
+                    xKey="date"
+                    yKey="count"
+                    name={selectedEvent}
+                  />
+                ) : data?.eventsByDate?.length > 0 ? (
                   <EventChart 
                     type="line" 
                     data={prepareEventsByDateData(data.eventsByDate)}
                     xKey="date"
                     yKey="count"
-                    name="Eventi"
+                    name="Events"
                   />
                 ) : (
-                  <p className="text-gray-500 text-center mt-10">Nessun dato disponibile</p>
+                  <p className="text-gray-500 text-center mt-10">No data available</p>
                 )}
               </div>
             </div>
             
             {/* Eventi per tipo (Bar Chart) */}
             <div className="col-span-1 md:col-span-2 lg:col-span-2 bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800">Eventi per Tipo</h2>
+              <h2 className="text-xl font-semibold mb-4 text-gray-800">Events by type</h2>
               <div className="h-64">
                 {data.eventsByType.length > 0 ? (
                   <EventChart 
@@ -122,17 +152,17 @@ function App() {
                     data={data.eventsByType}
                     xKey="eventName"
                     yKey="count"
-                    name="Conteggio"
+                    name="Count"
                   />
                 ) : (
-                  <p className="text-gray-500 text-center mt-10">Nessun dato disponibile</p>
+                  <p className="text-gray-500 text-center mt-10">No data available</p>
                 )}
               </div>
             </div>
             
             {/* Eventi per piattaforma (Pie Chart) */}
             <div className="col-span-1 bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800">Eventi per Piattaforma</h2>
+              <h2 className="text-xl font-semibold mb-4 text-gray-800">Events by platform</h2>
               <div className="h-64">
                 {data.eventsByPlatform.length > 0 ? (
                   <EventChart 
@@ -142,7 +172,7 @@ function App() {
                     dataKey="count"
                   />
                 ) : (
-                  <p className="text-gray-500 text-center mt-10">Nessun dato disponibile</p>
+                  <p className="text-gray-500 text-center mt-10">No data available</p>
                 )}
               </div>
             </div>

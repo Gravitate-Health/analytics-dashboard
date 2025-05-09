@@ -17,7 +17,10 @@ if (!SERVICE_ACCOUNT_PATH) {
 }
 
 // Percorso assoluto al file delle credenziali
-const serviceAccountPath = path.resolve(process.env.SERVICE_ACCOUNT_PATH);
+const serviceAccountPath = path.resolve(process.env.SERVICE_ACCOUNT_PATH || '');
+if (!serviceAccountPath) {
+  throw new Error('SERVICE_ACCOUNT_PATH non è definito o non valido');
+}
 
 // Interfacce per i dati restituiti
 interface EventByDate {
@@ -69,7 +72,7 @@ export async function getAnalyticsData(startDate: string, endDate: string): Prom
       dimensions: [{ name: 'eventName' }],
       metrics: [{ name: 'eventCount' }],
       orderBys: [{ metric: { metricName: 'eventCount' }, desc: true }],
-      limit: 10, // Limita ai 10 tipi di eventi più frequenti
+      // limit: 10,
     });
 
     const eventsByType: EventByType[] = eventsByTypeResponse[0].rows?.map(row => ({
@@ -100,4 +103,36 @@ export async function getAnalyticsData(startDate: string, endDate: string): Prom
     console.error('Errore nel recupero dei dati Analytics:', error);
     throw error;
   }
+}
+
+export async function getEventDetails(eventName: string, startDate: string, endDate: string) {
+  const analyticsDataClient = new BetaAnalyticsDataClient({
+    keyFilename: serviceAccountPath,
+  });
+
+  const [response] = await analyticsDataClient.runReport({
+    property: `properties/${GA4_PROPERTY_ID}`,
+    dateRanges: [{ startDate, endDate }],
+    dimensions: [
+      { name: 'eventName' },
+      { name: 'date' },
+      { name: 'platform' }
+    ],
+    metrics: [{ name: 'eventCount' }],
+    dimensionFilter: {
+      filter: {
+        fieldName: 'eventName',
+        stringFilter: {
+          matchType: 'EXACT',
+          value: eventName,
+        },
+      },
+    },
+  });
+
+  return response.rows?.map(row => ({
+    date: row.dimensionValues?.[1]?.value || '',
+    platform: row.dimensionValues?.[2]?.value || '',
+    count: parseInt(row.metricValues?.[0]?.value || '0', 10),
+  })) || [];
 }
