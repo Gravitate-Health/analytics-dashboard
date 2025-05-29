@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Header from './components/Header';
 import EventChart from './components/EventChart';
+import Sidebar from './components/Sidebar';
 import { fetchAnalyticsData } from './utils/fetchData';
 import './App.css';
 import EventSelector from './components/EventSelector';
@@ -86,10 +87,12 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      
-      <main className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gray-50 flex">
+      <Sidebar />
+      <div className="flex-1 ml-64">
+        <Header />
+        
+        <main className="container mx-auto px-4 py-8">
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -191,7 +194,8 @@ function App() {
             
           </div>
         )}
-      </main>
+              </main>
+      </div>
     </div>
   );
 }
