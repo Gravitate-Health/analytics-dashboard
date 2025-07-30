@@ -78,7 +78,7 @@ const Sidebar: React.FC = () => {
         </ul>
       </nav>
 
-      {/* Quick stats */}
+      {/* Quick stats
       <div className="mt-8 mx-4 p-4 bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl border border-gray-100">
         <div className="flex items-center justify-between">
           <div>
@@ -90,7 +90,7 @@ const Sidebar: React.FC = () => {
             <span className="text-xs font-medium text-green-600">Active</span>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* User info 
       <div className="absolute bottom-0 left-0 right-0 p-4">
