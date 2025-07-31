@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AnalyticsData } from '../App';
+import { AnalyticsData } from './types';
 
 // URL del backend
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';

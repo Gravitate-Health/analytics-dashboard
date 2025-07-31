@@ -1,0 +1,126 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+import EventChart from '../components/EventChart';
+import EventSelector from '../components/EventSelector';
+import { fetchAnalyticsData } from '../utils/fetchData';
+import type { AnalyticsData, EventByDate, EventByType, EventByPlatform } from '../utils/types';
+import { prepareEventsByDateData } from '../utils/helpers';
+
+const DashboardPage: React.FC = () => {
+  const [data, setData] = useState<AnalyticsData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState('');
+  const [filteredEventData, setFilteredEventData] = useState<EventByDate[]>([]);
+  const [filteredPlatformData, setFilteredPlatformData] = useState<EventByPlatform[]>([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+
+        if (selectedEvent) {
+          const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/eventi?nome=${selectedEvent}`);
+          setFilteredEventData(response.data.eventsByDate);
+          setFilteredPlatformData(response.data.eventsByPlatform);
+        } else {
+          const analyticsData = await fetchAnalyticsData();
+          setData(analyticsData);
+          setFilteredEventData([]);
+          setFilteredPlatformData([]);
+        }
+        setError(null);
+      } catch (err) {
+        setError('Errore durante il caricamento dei dati. Riprova più tardi.');
+        console.error('Errore nel recupero dei dati:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [selectedEvent]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <strong className="font-bold">Errore!</strong>
+        <span className="block sm:inline"> {error}</span>
+      </div>
+    );
+  }
+
+  if (!data && filteredEventData.length === 0) {
+     return (
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
+            <strong className="font-bold">Nessun dato disponibile</strong>
+            <span className="block sm:inline"> Non ci sono eventi da mostrare.</span>
+        </div>
+     );
+  }
+
+return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      {/* Line Chart */}
+      <div className="col-span-1 lg:col-span-3 bg-white rounded-lg shadow p-6">
+        <h2 className="text-xl font-semibold mb-4 text-gray-800">Events Trend</h2>
+        <EventSelector
+          eventList={data?.eventsByType.map(e => e.eventName) || []}
+          selectedEvent={selectedEvent}
+          onChange={setSelectedEvent}
+        />
+        <div className="h-64 mt-4">
+          {filteredEventData.length > 0 ? (
+            <EventChart type="line" data={prepareEventsByDateData(filteredEventData)} xKey="date" yKey="count" name={selectedEvent} />
+          ) : (data && data.eventsByDate.length > 0) ? (
+            <EventChart type="line" data={prepareEventsByDateData(data.eventsByDate)} xKey="date" yKey="count" name="All Events" />
+          ) : (
+            <p className="text-gray-500 text-center mt-10">No data available for this chart.</p>
+          )}
+        </div>
+      </div>
+
+      {/* Bar Chart */}
+      <div className="col-span-1 md:col-span-2 lg:col-span-2 bg-white rounded-lg shadow p-6">
+        <h2 className="text-xl font-semibold mb-4 text-gray-800">Events by Type</h2>
+        <div className="h-64">
+          {(data && data.eventsByType.length > 0) ? (
+            <EventChart type="bar" data={data.eventsByType} xKey="eventName" yKey="count" name="Occurrences" />
+          ) : (
+            <p className="text-gray-500 text-center mt-10">No data available for this chart.</p>
+          )}
+        </div>
+      </div>
+
+      {/* Pie Chart */}
+      <div className="col-span-1 bg-white rounded-lg shadow p-6">
+        <h2 className="text-xl font-semibold mb-4 text-gray-800">
+          {selectedEvent ? `Platform: ${selectedEvent}` : 'Platform Distribution'}
+        </h2>
+        <div className="h-64">
+          {filteredPlatformData.length > 0 ? (
+            <EventChart type="pie" data={filteredPlatformData} nameKey="platform" dataKey="count" />
+          ) : (data && data.eventsByPlatform.length > 0 && !selectedEvent) ? (
+            <EventChart type="pie" data={data.eventsByPlatform} nameKey="platform" dataKey="count" />
+          ) : (
+            <p className="text-gray-500 text-center mt-10">
+              {selectedEvent ? 'No platform data for this event.' : 'No platform data available.'}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DashboardPage;
