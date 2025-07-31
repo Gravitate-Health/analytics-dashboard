@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { getAnalyticsData, getEventDetails } from './analytics';
-import { getMedicationSummaryList } from './medication-analytics';
+import { getMedicationDetails, getMedicationSummaryList } from './medication-analytics';
 
 // Carica le variabili d'ambiente dal file .env
 dotenv.config();
@@ -46,7 +46,6 @@ app.get('/api/medications', async (req, res) => {
   }
 });
 
-{/*
 // TODO: controllo se non esiste il farmaco
 app.get('/api/medication/:name', async (req, res) => {
   try {
@@ -57,7 +56,6 @@ app.get('/api/medication/:name', async (req, res) => {
     res.status(500).json({ message: 'Error fetching medication details', error: (error as Error).message });
   }
 });
-*/}
 
 // Avvio del server
 app.listen(PORT, () => {

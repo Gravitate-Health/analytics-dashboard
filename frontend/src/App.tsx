@@ -4,6 +4,7 @@ import BaseLayout from './layout/BaseLayout';
 import HomePage from './pages/HomePage';
 import DashboardPage from './pages/DashboardPage';
 import MedicationPage from './pages/MedicationPage';
+import MedicationDetailPage from './pages/MedicationDetailPage';
 
 import './App.css';
 
@@ -16,7 +17,7 @@ const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: '/dashboard', element: <DashboardPage /> },
       { path: '/medications', element: <MedicationPage /> },
-      //{ path: '/medication/:name', element: <MedicationDetailPage /> },
+      { path: '/medication/:name', element: <MedicationDetailPage /> },
     ],
   },
 ]);

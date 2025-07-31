@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 
 import logo from '../assets/gh-lens.png';
 
@@ -37,7 +37,7 @@ const Sidebar: React.FC = () => {
   return (
     <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-100 z-30">
       {/* Logo area */}
-      <div className="h-20 flex items-center px-6 border-b border-gray-50">
+      <Link to="/" className="h-20 flex items-center px-6 border-b border-gray-50 cursor-pointer">
         <div className="flex items-center space-x-3">
             <img src={logo} alt="Gravitate Health Logo" className="h-10" />
           <div>
@@ -45,7 +45,7 @@ const Sidebar: React.FC = () => {
             <p className="text-xs text-gray-500 -mt-1"></p>
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* Navigation */}
       <nav className="mt-8 px-4">

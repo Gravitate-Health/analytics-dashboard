@@ -39,7 +39,7 @@ export const fetchMedicationSummaryList = async (): Promise<MedicationSummary[]>
   }
 };
 
-{/*
+
 export const fetchMedicationDetails = async (medicationName: string): Promise<MedicationDetails> => {
   try {
     const encodedName = encodeURIComponent(medicationName);
@@ -50,4 +50,3 @@ export const fetchMedicationDetails = async (medicationName: string): Promise<Me
     throw error;
   }
 };
-*/}

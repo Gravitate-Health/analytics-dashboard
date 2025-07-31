@@ -1,5 +1,3 @@
-// frontend/MedicationPage.tsx
-
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchMedicationSummaryList } from '../utils/fetchData';
@@ -59,10 +57,20 @@ const MedicationPage: React.FC = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {summaryList.map((summary) => (
               <tr key={summary.name}>
-                <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{summary.name}</td>
+                <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                  <Link 
+                    to={`/medication/${encodeURIComponent(summary.name)}`}
+                    className="text-current cursor-pointer"
+                    >{summary.name}
+                  </Link>
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-gray-500">{summary.totalInteractions}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <span className="text-gray-400 cursor-not-allowed">Vedi Dettagli</span>
+                <Link 
+                  to={`/medication/${encodeURIComponent(summary.name)}`} 
+                  className="text-indigo-600 hover:text-indigo-900"
+                  >Vedi Dettagli
+                </Link>
                 </td>
               </tr>
             ))}
