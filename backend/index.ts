@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { getAnalyticsData, getEventDetails } from './analytics';
+import { getMedicationAnalytics } from './medication-analytics';
 
 // Carica le variabili d'ambiente dal file .env
 dotenv.config();
@@ -33,6 +34,15 @@ app.get('/api/eventi', async (req, res) => {
       error: 'Errore durante il recupero dei dati di Analytics',
       message: error instanceof Error ? error.message : 'Errore sconosciuto',
     });
+  }
+});
+
+app.get('/api/medication', async (req, res) => {
+  try {
+    const data = await getMedicationAnalytics();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching Firestore', error: (error as Error).message });
   }
 });
 

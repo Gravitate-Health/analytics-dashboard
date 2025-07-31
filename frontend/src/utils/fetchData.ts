@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AnalyticsData } from './types';
+import { AnalyticsData, MedicationData } from './types';
 
 // URL del backend
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -25,6 +25,16 @@ export const fetchAnalyticsData = async (
     return response.data;
   } catch (error) {
     console.error('Errore durante il recupero dei dati:', error);
+    throw error;
+  }
+};
+
+export const fetchMedicationData = async (): Promise<MedicationData[]> => {
+  try {
+    const response = await axios.get(`${API_URL}/api/medication`);
+    return response.data;
+  } catch (error) {
+    console.error('Error', error);
     throw error;
   }
 };

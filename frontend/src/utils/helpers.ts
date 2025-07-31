@@ -1,3 +1,5 @@
+import type { EventByDate } from './types';
+
 export const formatDate = (dateString: string): string => {
     if (dateString && dateString.length === 8) {
       const year = dateString.substring(0, 4);

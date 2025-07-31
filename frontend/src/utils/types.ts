@@ -18,3 +18,8 @@ export interface AnalyticsData {
   eventsByType: EventByType[];
   eventsByPlatform: EventByPlatform[];
 }
+
+export interface MedicationData {
+  medication_name: string;
+  count: number;
+}
