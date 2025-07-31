@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AnalyticsData, MedicationData } from './types';
+import { AnalyticsData, MedicationDetails, MedicationSummary } from './types';
 
 // URL del backend
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -29,12 +29,25 @@ export const fetchAnalyticsData = async (
   }
 };
 
-export const fetchMedicationData = async (): Promise<MedicationData[]> => {
+export const fetchMedicationSummaryList = async (): Promise<MedicationSummary[]> => {
   try {
-    const response = await axios.get(`${API_URL}/api/medication`);
+    const response = await axios.get(`${API_URL}/api/medications`);
     return response.data;
   } catch (error) {
-    console.error('Error', error);
+    console.error('Errore durante il recupero della lista dei farmaci:', error);
     throw error;
   }
 };
+
+{/*
+export const fetchMedicationDetails = async (medicationName: string): Promise<MedicationDetails> => {
+  try {
+    const encodedName = encodeURIComponent(medicationName);
+    const response = await axios.get(`${API_URL}/api/medication/${encodedName}`);
+    return response.data;
+  } catch (error) {
+    console.error('Errore durante il recupero dei dettagli del farmaco:', error);
+    throw error;
+  }
+};
+*/}

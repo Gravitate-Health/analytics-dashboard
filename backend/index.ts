@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { getAnalyticsData, getEventDetails } from './analytics';
-import { getMedicationAnalytics } from './medication-analytics';
+import { getMedicationSummaryList } from './medication-analytics';
 
 // Carica le variabili d'ambiente dal file .env
 dotenv.config();
@@ -37,14 +37,27 @@ app.get('/api/eventi', async (req, res) => {
   }
 });
 
-app.get('/api/medication', async (req, res) => {
+app.get('/api/medications', async (req, res) => {
   try {
-    const data = await getMedicationAnalytics();
+    const data = await getMedicationSummaryList(); 
     res.json(data);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching Firestore', error: (error as Error).message });
+    res.status(500).json({ message: 'Error fetching medication list', error: (error as Error).message });
   }
 });
+
+{/*
+// TODO: controllo se non esiste il farmaco
+app.get('/api/medication/:name', async (req, res) => {
+  try {
+    const medicationName = decodeURIComponent(req.params.name);
+    const data = await getMedicationDetails(medicationName);
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching medication details', error: (error as Error).message });
+  }
+});
+*/}
 
 // Avvio del server
 app.listen(PORT, () => {

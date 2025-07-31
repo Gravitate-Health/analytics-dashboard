@@ -1,4 +1,3 @@
-import React from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import BaseLayout from './layout/BaseLayout';
@@ -14,18 +13,10 @@ const router = createBrowserRouter([
     element: <BaseLayout />,
     // errorElement: <ErrorPage />,
     children: [
-      {
-        index: true,
-        element: <HomePage />,
-      },
-      {
-        path: '/dashboard',
-        element: <DashboardPage />,
-      },
-      {
-        path: '/medication',
-        element: <MedicationPage />,
-      },
+      { index: true, element: <HomePage /> },
+      { path: '/dashboard', element: <DashboardPage /> },
+      { path: '/medications', element: <MedicationPage /> },
+      //{ path: '/medication/:name', element: <MedicationDetailPage /> },
     ],
   },
 ]);

@@ -1,49 +1,40 @@
 import path from 'path';
-
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-
-export interface MedicationData {
-    medication_name: string;
-    count: number;
-}
+import { MedicationSummary } from './utils/types';
 
 const serviceAccountPath = path.resolve(process.env.SERVICE_ACCOUNT_PATH || '');
-
 if (!getApps().length) {
   initializeApp({
     credential: cert(serviceAccountPath),
   });
 }
-
 const db = getFirestore();
 
-export const getMedicationAnalytics = async (): Promise<MedicationData[]> => {
-  try {
-    // sub-collection 'medication_focused_leaflet'
-    const snapshot = await db.collectionGroup('medication_focused_leaflet').get();
+const INTERACTION_COLLECTIONS = [
+  'medication_leaflet',
+  'medication_focused_leaflet',
+  'medication_summary_leaflet',
+  'medication_support_material',
+];
 
-    if (snapshot.empty) {
-      console.log('medication_focused_leaflet is empty');
-      return [];
-    }
+export const getMedicationSummaryList = async (): Promise<MedicationSummary[]> => {
+  const queryPromises = INTERACTION_COLLECTIONS.map(name => db.collectionGroup(name).get());
+  const snapshots = await Promise.all(queryPromises);
 
-    const medicationData: MedicationData[] = [];
+  const summaryMap: Map<string, number> = new Map();
+
+  snapshots.forEach(snapshot => {
     snapshot.forEach(doc => {
       const data = doc.data();
-      if (data.medication_name && typeof data.count === 'number') {
-        medicationData.push({
-          medication_name: data.medication_name,
-          count: data.count,
-        });
+      if (data.medication_name) {
+        const currentCount = summaryMap.get(data.medication_name) || 0;
+        const interactionsToAdd = data.count || 0;
+        summaryMap.set(data.medication_name, currentCount + interactionsToAdd);
       }
     });
+  });
 
-    // sort by count
-    return medicationData.sort((a, b) => b.count - a.count);
-
-  } catch (error) {
-    console.error("Error fetching Firestore:", error);
-    throw new Error("It's not possible retrieve data");
-  }
+  return Array.from(summaryMap, ([name, totalInteractions]) => ({ name, totalInteractions }))
+    .sort((a, b) => b.totalInteractions - a.totalInteractions);
 };
