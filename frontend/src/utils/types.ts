@@ -50,3 +50,11 @@ export interface MedicationSummary {
   name: string;
   totalInteractions: number;
 }
+
+export interface SidebarProps {
+  isOpen: boolean;
+}
+
+export interface HeaderProps {
+  toggleSidebar: () => void;
+}
