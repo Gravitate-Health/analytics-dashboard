@@ -7,6 +7,7 @@ const MedicationPage: React.FC = () => {
   const [summaryList, setSummaryList] = useState<MedicationSummary[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   useEffect(() => {
     const loadData = async () => {
@@ -45,6 +46,17 @@ const MedicationPage: React.FC = () => {
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <h1 className="text-2xl font-bold text-gray-800 mb-4">Riepilogo Farmaci</h1>
+      {/* Search bar */}
+      <div className='mb-4'>
+        <input 
+          type='text' 
+          value={searchTerm} 
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder='Search...'
+          className='w-full px-4 py-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+        />
+      </div>
+      {/* Medication table */}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -55,25 +67,27 @@ const MedicationPage: React.FC = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {summaryList.map((summary) => (
-              <tr key={summary.name}>
-                <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+            {summaryList
+              .filter((summary => summary.name.toLowerCase().includes(searchTerm.toLowerCase())))
+              .map((summary) => (
+                <tr key={summary.name}>
+                  <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                    <Link 
+                      to={`/medication/${encodeURIComponent(summary.name)}`}
+                      className="text-current cursor-pointer"
+                      >{summary.name}
+                    </Link>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-500">{summary.totalInteractions}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Link 
-                    to={`/medication/${encodeURIComponent(summary.name)}`}
-                    className="text-current cursor-pointer"
-                    >{summary.name}
+                    to={`/medication/${encodeURIComponent(summary.name)}`} 
+                    className="text-indigo-600 hover:text-indigo-900"
+                    >Vedi Dettagli
                   </Link>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-gray-500">{summary.totalInteractions}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <Link 
-                  to={`/medication/${encodeURIComponent(summary.name)}`} 
-                  className="text-indigo-600 hover:text-indigo-900"
-                  >Vedi Dettagli
-                </Link>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
