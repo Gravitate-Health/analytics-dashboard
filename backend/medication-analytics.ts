@@ -1,7 +1,7 @@
 import path from 'path';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import { Interaction, MedicationDetails, MedicationSummary, LanguageCounts } from './utils/types';
+import { Interaction, MedicationDetails, MedicationSummary, LanguageCounts, Question } from './utils/types';
 
 const serviceAccountPath = path.resolve(process.env.SERVICE_ACCOUNT_PATH || '');
 if (!getApps().length) {
@@ -31,6 +31,7 @@ export const getMedicationSummaryList = async (): Promise<MedicationSummary[]> =
         const currentCount = summaryMap.get(data.medication_name) || 0;
         //const interactionsToAdd = data.count || 0;
         const interactionsToAdd = (data.count_en || 0) + (data.count_es || 0);
+        //const interactionsToAdd = (data.count_en || 0) + (data.count_es || data.count || 0); // se vogliamo considerare count come count_es
         summaryMap.set(data.medication_name, currentCount + interactionsToAdd);
       }
     });
@@ -50,17 +51,19 @@ export const getMedicationSummaryList = async (): Promise<MedicationSummary[]> =
  * the medication name and a list of its interactions with language-specific counts.
  */
 export const getMedicationDetails = async (medicationName: string): Promise<MedicationDetails> => {
-  const queryPromises = INTERACTION_COLLECTIONS.map(collectionName =>
+  const interactionPromises = INTERACTION_COLLECTIONS.map(collectionName =>
     db.collection(collectionName).where('medication_name', '==', medicationName).get()
   );
+
+  const questionsPromise = db.collection('chat_questions').where('medication_name', '==', medicationName).get();
 
   // `Promise.all` resolves an array of promises. It maintains the original order,
   // meaning the `snapshots` array will correspond directly to the order of `queryPromises`
   // generated from the `INTERACTION_COLLECTIONS.map()` call. This allows us to
   // safely use the index to get the correct collection name later on.
-  const snapshots = await Promise.all(queryPromises);
+  const [interactionSnapshots, questionsSnapshot] = await Promise.all([Promise.all(interactionPromises), questionsPromise]);
 
-  const interactions: Interaction[] = snapshots.map((snapshot, index) => {
+  const interactions: Interaction[] = interactionSnapshots.map((snapshot, index) => {
     const collectionName = INTERACTION_COLLECTIONS[index];
     const type = collectionName.split('_')[1] || collectionName.split('_')[0]; // (es. leaflet, summary, suppport)
     const formattedType = type.charAt(0).toUpperCase() + type.slice(1);
@@ -75,6 +78,7 @@ export const getMedicationDetails = async (medicationName: string): Promise<Medi
       //counts.total += data.count || 0;
       const countEn = data.count_en || 0;
       const countEs = data.count_es || 0;
+      //const countEs = data.count_es || data.count || 0; // se vogliamo trattare count come count_es
 
       counts['en'] = (counts['en'] || 0) + countEn;
       counts['es'] = (counts['es'] || 0) + countEs;
@@ -91,7 +95,17 @@ export const getMedicationDetails = async (medicationName: string): Promise<Medi
 
     return { type: formattedType, counts }; // (es. [{ type: "Leaflet", counts: {total: 42, en: 30, it: 12}}, {...}]
   });
-
   const filteredInteractions = interactions.filter(interaction => interaction.counts.total > 0);
-  return { name: medicationName, interactions: filteredInteractions, questions: [] };
+
+  const questions: Question[] = questionsSnapshot.docs.map(doc => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      question: data.question || 'Text not available',
+      lang: data.language || 'N/A',
+      timestamp: data.timestamp?.toDate() || new Date()
+    }
+  })
+
+  return { name: medicationName, interactions: filteredInteractions, questions };
 };

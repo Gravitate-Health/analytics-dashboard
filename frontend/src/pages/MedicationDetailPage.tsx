@@ -122,6 +122,25 @@ const MedicationDetailPage: React.FC = () => {
           </BarChart>
         </ResponsiveContainer>
       </div>
+
+      {/* Questions */}
+      {details.questions && details.questions.length > 0 && (
+        <div className='bg-white p-6 rounded-lg shadow'>
+          <h2 className='text-xl font-semibold mb-4'> User questions</h2>
+          <ul className='space-y-4'>
+            {details.questions.map(question => (
+              <li key={question.id} className='border-b border-gray-200 pb-3'>
+                <p className='text-gray-800'>{question.question}</p>
+                <div className='text-xs text-gray-400 mt-1 flex items-center space-x-2'>
+                  <span>Language: {question.lang.toUpperCase()}</span>
+                  <span>-</span>
+                  <span>{new Date(question.timestamp).toLocaleDateString('it-IT')}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };

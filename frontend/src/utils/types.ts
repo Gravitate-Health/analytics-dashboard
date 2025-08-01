@@ -34,8 +34,10 @@ export interface Interaction {
 }
 
 export interface Question {
+  id: string;
   question: string;
-  timestamp: string;
+  lang: string;
+  timestamp: Date;
 }
 
 export interface MedicationDetails {
