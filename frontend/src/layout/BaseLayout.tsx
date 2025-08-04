@@ -11,9 +11,9 @@ const BaseLayout: React.FC = () => {
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar isOpen={isSidebarOpen} closeSidebar={toggleSidebar}/>
       {isSidebarOpen && (
-        <div onClick={toggleSidebar} className='fixed inset-0 bg-black opacity-50 z-20 lg:hidden' aria-hidden="true"></div>
+        <div onClick={toggleSidebar} className='fixed inset-0 bg-black opacity-50 z-20' aria-hidden="true"></div>
       )}
-      <div className="flex-1 lg:ml-64">
+      <div className="flex-1">
         <Header toggleSidebar={toggleSidebar}/>
         <main className="container mx-auto px-4 py-8">
           <Outlet />

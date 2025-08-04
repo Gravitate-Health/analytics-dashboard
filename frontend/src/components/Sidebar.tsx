@@ -7,7 +7,7 @@ import { SidebarProps } from '../utils/types';
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, closeSidebar }) => {
   const menuItems = [
     {
-      name: 'Home',
+      name: 'HOME',
       to: '/',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -16,7 +16,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, closeSidebar }) => {
       ),
     },
     {
-      name: 'Dashboard',
+      name: 'DASHBOARD',
       to: '/dashboard',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,7 +25,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, closeSidebar }) => {
       ),
     },
     {
-      name: 'Medications',
+      name: 'MEDICATIONS',
       to: '/medications',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,20 +37,21 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, closeSidebar }) => {
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-100 z-30 transform transition-transform duration-300 ease-in-out ${
-        isOpen ? 'translate-x-0' : '-translate-x-full'
-      } lg:translate-x-0`}
+      className={`fixed right-0 top-0 h-full w-64 bg-sidebar-bg border-l border-gray-100 z-30 transform transition-transform duration-300 ease-in-out ${
+        isOpen ? 'translate-x-0' : 'translate-x-full'}`}
     >
-      {/* Logo area */}
-      <Link to="/" className="h-20 flex items-center px-6 border-b border-gray-50 cursor-pointer">
-        <div className="flex items-center space-x-3">
-            <img src={logo} alt="Gravitate Health Logo" className="h-10" />
-          <div>
-            <h1 className="text-lg font-bold text-gray-900">Gravitate Health</h1>
-            <p className="text-xs text-gray-500 -mt-1"></p>
-          </div>
-        </div>
-      </Link>
+      {/* Close button area */}
+      <div className="h-20 flex items-center justify-start px-6">
+        <button
+          onClick={closeSidebar}
+          className="text-white hover:text-gray-300"
+          aria-label="Close sidebar"
+        >
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
       {/* Navigation */}
       <nav className="mt-8 px-4">
@@ -62,25 +63,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, closeSidebar }) => {
                 end //
                 onClick={closeSidebar}
                 className={({ isActive }) =>
-                  `group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
-                    isActive
-                      ? 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 shadow-sm border-l-4 border-blue-500'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`
+                  `font-sans group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
+                    isActive ? 'text-sidebar-accent' : 'text-sidebar-text hover:text-sidebar-accent'}`
                 }
               >
                 {({ isActive }) => (
-                  <>
-                    <span className={`${isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'} transition-colors duration-200`}>
-                      {item.icon}
-                    </span>
-                    <span className="ml-3 font-medium">{item.name}</span>
-                    {isActive && (
-                      <div className="ml-auto">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      </div>
-                    )}
-                  </>
+                  <><span className="font-medium">{item.name}</span></>
                 )}
               </NavLink>
             </li>
