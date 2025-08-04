@@ -4,7 +4,7 @@ import { Link, NavLink } from 'react-router-dom';
 import logo from '../assets/gh-lens.png';
 import { SidebarProps } from '../utils/types';
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, closeSidebar }) => {
   const menuItems = [
     {
       name: 'Home',
@@ -39,7 +39,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
     <aside
       className={`fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-100 z-30 transform transition-transform duration-300 ease-in-out ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
-      } md:translate-x-0`}
+      } lg:translate-x-0`}
     >
       {/* Logo area */}
       <Link to="/" className="h-20 flex items-center px-6 border-b border-gray-50 cursor-pointer">
@@ -60,6 +60,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
               <NavLink
                 to={item.to}
                 end //
+                onClick={closeSidebar}
                 className={({ isActive }) =>
                   `group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
                     isActive

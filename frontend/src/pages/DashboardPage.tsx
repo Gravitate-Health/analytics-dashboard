@@ -69,7 +69,7 @@ const DashboardPage: React.FC = () => {
   }
 
 return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
       {/* Line Chart */}
       <div className="col-span-1 lg:col-span-3 bg-white rounded-lg shadow p-6">
@@ -91,7 +91,7 @@ return (
       </div>
 
       {/* Bar Chart */}
-      <div className="col-span-1 md:col-span-2 lg:col-span-2 bg-white rounded-lg shadow p-6">
+      <div className="col-span-1 md:col-span-2 lg:col-span-3 bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4 text-gray-800">Events by Type</h2>
         <div className="h-64">
           {(data && data.eventsByType.length > 0) ? (
@@ -103,7 +103,7 @@ return (
       </div>
 
       {/* Pie Chart */}
-      <div className="col-span-1 bg-white rounded-lg shadow p-6">
+      <div className="col-span-1 lg:col-span-3 bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4 text-gray-800">
           {selectedEvent ? `Platform: ${selectedEvent}` : 'Platform Distribution'}
         </h2>

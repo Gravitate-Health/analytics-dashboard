@@ -62,8 +62,8 @@ const MedicationPage: React.FC = () => {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome Farmaco</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Interazioni Totali</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Azioni</th>
+              <th className="w-40 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Interazioni Totali</th>
+              <th className="w-32 px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Azioni</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -71,11 +71,9 @@ const MedicationPage: React.FC = () => {
               .filter((summary => summary.name.toLowerCase().includes(searchTerm.toLowerCase())))
               .map((summary) => (
                 <tr key={summary.name}>
-                  <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                    <Link 
-                      to={`/medication/${encodeURIComponent(summary.name)}`}
-                      className="text-current cursor-pointer"
-                      >{summary.name}
+                  <td className="max-w-xs px-6 py-4 whitespace-nowrap font-medium text-gray-900 truncate">
+                    <Link to={`/medication/${encodeURIComponent(summary.name)}`} className="text-current cursor-pointer">
+                      {summary.name}
                     </Link>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-500">{summary.totalInteractions}</td>
@@ -83,7 +81,7 @@ const MedicationPage: React.FC = () => {
                   <Link 
                     to={`/medication/${encodeURIComponent(summary.name)}`} 
                     className="text-indigo-600 hover:text-indigo-900"
-                    >Vedi Dettagli
+                    >Vedi Dettagli &gt;
                   </Link>
                   </td>
                 </tr>

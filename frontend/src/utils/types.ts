@@ -53,6 +53,7 @@ export interface MedicationSummary {
 
 export interface SidebarProps {
   isOpen: boolean;
+  closeSidebar: () => void;
 }
 
 export interface HeaderProps {
