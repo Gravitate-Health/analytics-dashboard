@@ -9,6 +9,7 @@ module.exports = {
         sans: ['Roboto', 'Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica Neue', 'Arial', 'sans-serif'],
       },
       colors: {
+        'hero-bg': '#06334c',
         'sidebar-bg': '#212331',
         'sidebar-text': '#99a9b5',
         'sidebar-accent': '#00bcd4',

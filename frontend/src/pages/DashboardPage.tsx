@@ -69,16 +69,26 @@ const DashboardPage: React.FC = () => {
   }
 
 return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" style={{ margin: '3rem' }}>
 
       {/* Line Chart */}
       <div className="col-span-1 lg:col-span-3 bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4 text-gray-800">Events Trend</h2>
-        <EventSelector
-          eventList={data?.eventsByType.map(e => e.eventName) || []}
-          selectedEvent={selectedEvent}
-          onChange={setSelectedEvent}
-        />
+        <div className='flex justify-between items-center'>
+          <div className='w-1/2'>
+            <EventSelector
+              eventList={data?.eventsByType.map(e => e.eventName) || []}
+              selectedEvent={selectedEvent}
+              onChange={setSelectedEvent}
+            />
+          </div>
+          <div>
+            <div className="flex items-center space-x-2 text-sm">
+              <span className="text-gray-500">Period time:</span>
+              <span className="font-medium text-gray-700">Last 30 days</span>
+            </div>
+          </div>
+        </div>
         <div className="h-64 mt-4">
           {filteredEventData.length > 0 ? (
             <EventChart type="line" data={prepareEventsByDateData(filteredEventData)} xKey="date" yKey="count" name={selectedEvent} />
@@ -119,6 +129,7 @@ return (
           )}
         </div>
       </div>
+
     </div>
   );
 };

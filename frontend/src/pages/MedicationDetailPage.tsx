@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { fetchMedicationDetails } from '../utils/fetchData';
 import type { MedicationDetails, Interaction } from '../utils/types';
@@ -85,7 +85,16 @@ const MedicationDetailPage: React.FC = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" style={{ margin: '3rem' }}>
+      <Link 
+        to="/medications" 
+        className='inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors duration-200'
+      >
+        <svg className="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+          Torna alla lista
+        </Link>
       <h1 className="text-3xl font-bold text-gray-800">{details.name}</h1>
       
       {/* Filtro Lingua */}

@@ -44,17 +44,23 @@ const MedicationPage: React.FC = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h1 className="text-2xl font-bold text-gray-800 mb-4">Riepilogo Farmaci</h1>
-      {/* Search bar */}
-      <div className='mb-4'>
-        <input 
-          type='text' 
-          value={searchTerm} 
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder='Search...'
-          className='w-full px-4 py-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
-        />
+    <div className="bg-white rounded-lg shadow p-6" style={{ margin: '3rem' }}>
+      <div className='flex justify-between items-center mb-6'>
+        <h1 className="text-2xl font-bold text-gray-800">Riepilogo Farmaci</h1>
+        <div className='grid items-center w-72'>
+          <input 
+            type='text' 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder='Search...'
+            className='col-start-1 row-start-1 w-full pl-4 pr-12 py-2 bg-[#e0e5e9] text-gray-800 placeholder-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+          />
+          <div className="col-start-1 row-start-1 justify-self-end flex items-center justify-center w-12 h-full bg-hero-bg rounded-r-lg pointer-events-none">
+            <svg className="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+        </div>
       </div>
       {/* Medication table */}
       <div className="overflow-x-auto">
@@ -77,11 +83,11 @@ const MedicationPage: React.FC = () => {
                     </Link>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-500">{summary.totalInteractions}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                   <Link 
                     to={`/medication/${encodeURIComponent(summary.name)}`} 
-                    className="text-indigo-600 hover:text-indigo-900"
-                    >Vedi Dettagli &gt;
+                    className="font-sans font-medium text-sidebar-text hover:text-sidebar-accent transition-colors duration-200 uppercase"
+                    >Dettagli &gt;
                   </Link>
                   </td>
                 </tr>

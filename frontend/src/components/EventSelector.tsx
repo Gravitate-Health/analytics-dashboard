@@ -8,7 +8,7 @@ interface Props {
 
 const EventSelector: React.FC<Props> = ({ eventList, selectedEvent, onChange }) => {
   return (
-    <div className="mb-6">
+    <div>
       <label htmlFor="event-select" className="block text-sm font-medium text-gray-700 mb-2">
          Select an event
       </label>
