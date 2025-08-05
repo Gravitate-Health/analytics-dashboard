@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 import EventChart from '../components/EventChart';
 import EventSelector from '../components/EventSelector';
@@ -9,6 +10,8 @@ import { prepareEventsByDateData } from '../utils/helpers';
 import type { AnalyticsData, EventByDate, EventByPlatform } from '../utils/types';
 
 const DashboardPage: React.FC = () => {
+  const { t } = useTranslation();
+
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,8 +36,7 @@ const DashboardPage: React.FC = () => {
         }
         setError(null);
       } catch (err) {
-        setError('Errore durante il caricamento dei dati. Riprova più tardi.');
-        console.error('Errore nel recupero dei dati:', err);
+        setError(t('errors.loadDataError'));
       } finally {
         setLoading(false);
       }
@@ -54,7 +56,7 @@ const DashboardPage: React.FC = () => {
   if (error) {
     return (
       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-        <strong className="font-bold">Errore!</strong>
+        <strong className="font-bold">{t('errors.error')}</strong>
         <span className="block sm:inline"> {error}</span>
       </div>
     );
@@ -63,8 +65,8 @@ const DashboardPage: React.FC = () => {
   if (!data && filteredEventData.length === 0) {
      return (
         <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
-            <strong className="font-bold">Nessun dato disponibile</strong>
-            <span className="block sm:inline"> Non ci sono eventi da mostrare.</span>
+            <strong className="font-bold">{t('charts.noDataAvailable')}</strong>
+            <span className="block sm:inline">{t('charts.noEventAvailable')}</span>
         </div>
      );
   }
@@ -74,7 +76,7 @@ return (
 
       {/* Line Chart */}
       <div className="col-span-1 lg:col-span-3 bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold mb-4 text-gray-800">Events Trend</h2>
+        <h2 className="text-xl font-semibold mb-4 text-gray-800">{t('charts.lineChartTitle')}</h2>
         <div className='flex justify-between items-center'>
           <div className='w-1/2'>
             <EventSelector
@@ -96,7 +98,7 @@ return (
           ) : (data && data.eventsByDate.length > 0) ? (
             <EventChart type="line" data={prepareEventsByDateData(data.eventsByDate)} xKey="date" yKey="count" name="All Events" />
           ) : (
-            <p className="text-gray-500 text-center mt-10">No data available for this chart.</p>
+            <p className="text-gray-500 text-center mt-10">{t('charts.noDataAvailable')}</p>
           )}
         </div>
       </div>
@@ -108,7 +110,7 @@ return (
           {(data && data.eventsByType.length > 0) ? (
             <EventChart type="bar" data={data.eventsByType} xKey="eventName" yKey="count" name="Occurrences" />
           ) : (
-            <p className="text-gray-500 text-center mt-10">No data available for this chart.</p>
+            <p className="text-gray-500 text-center mt-10">{t('charts.noDataAvailable')}</p>
           )}
         </div>
       </div>
@@ -116,7 +118,10 @@ return (
       {/* Pie Chart */}
       <div className="col-span-1 lg:col-span-3 bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4 text-gray-800">
-          {selectedEvent ? `Platform: ${selectedEvent}` : 'Platform Distribution'}
+          {selectedEvent 
+            ? t('charts.pieChartEventSelected', { eventName: selectedEvent }) 
+            : t('charts.pieChartDefault')
+          }
         </h2>
         <div className="h-64">
           {filteredPlatformData.length > 0 ? (

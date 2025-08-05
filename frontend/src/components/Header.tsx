@@ -1,17 +1,20 @@
 import React from 'react';
 
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import gravitateLogo from '../assets/gravitate-logo.png';
 import { HeaderProps } from '../utils/types';
 
 const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
+  const { t } = useTranslation();
+
   return (
     <header className="bg-hero-bg">
       <div className="container mx-auto px-4 py-6 flex justify-between items-center">
         <div className='flex items-center space-x-4'>
           <Link to="/"><img src={gravitateLogo} alt="Gravitate Health logo" className='h-10'></img></Link>
-          <h1 className='text-2xl font-bold text-white'>GH-Dash</h1>
+          <h1 className='text-2xl font-bold text-white'>{t('header.title')}</h1>
         </div>
         <div className="flex items-center space-x-4">
           {/* Hamburger */}

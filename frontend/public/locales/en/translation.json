@@ -1,0 +1,47 @@
+{
+    "charts": {
+        "barChartTitle": "Events by Type",
+        "lineChartTitle": "Events Trend",
+        "noDataAvailable": "No data available.",
+        "noEventAvailable": "No event available.",
+        "pieChartEventSelected": "Platform: {{eventName}}",
+        "pieChartDefault": "Platform Distribution"
+    },
+    "errors": {
+        "error": "Error!",
+        "loadDataError": "Error loading data. Try again later."
+    },
+    "header": {
+      "title": "GH-DASH"
+    },
+    "homePage": {
+        "title": "A DIGITAL HEALTH INFORMATION JOURNEY",
+        "subtitle": "\"Empowering and equipping Europeans with health information for active personal health management and adherence to treatment\""
+    },
+    "medicationPage": {
+        "title": "Medication summary",
+        "tableHeaders": {
+            "medicationName": "Drug name",
+            "interactions": "Total interactions",
+            "actions": "Actions"
+        },
+        "tableContent": {
+            "details": "Details"
+        },
+        "search": "Search..."
+    },
+    "medicationDetailPage": {
+        "back": "Back",
+        "languageFilterButton": "Aggregate",
+        "graphTitle": "Interactions by language summary",
+        "questionLanguageLabel": "Language:",
+        "questionsTitle": "User questions"
+    },
+    "sidebar": {
+        "navigation": {
+            "home": "HOME",
+            "dashboard": "DASHBOARD",
+            "medications": "MEDICATIONS"
+        }
+    }
+  }

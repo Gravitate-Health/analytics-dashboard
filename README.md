@@ -65,6 +65,32 @@ docker compose up -d --build
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:3001/api/eventi
 
+---
+
+## 🌍 Internationalization (i18n)
+
+The frontend is built with localization using **`react-i18next`**. This setup allows for easy addition of new languages and lazy-loads translation files, keeping the initial bundle size small.
+
+### How it Works
+
+- Translation files are stored as static JSON files in `frontend/public/locales/`.
+- Each language has its own folder (e.g., `en` for English).
+- The main configuration can be found in `frontend/src/i18n.ts`.
+
+### Adding a New Language
+
+Adding a new language is a simple 3-step process. Let's use **German (`de`)** as an example:
+
+1.  **Create the Translation File**
+    Create a new folder and file: `frontend/public/locales/de/translation.json`. 
+
+2.  **Update i18next Configuration**
+    Add the new language code to the `supportedLngs` array in `frontend/src/i18n.ts` to make the system aware of it.
+    ```typescript
+    supportedLngs: ['en', 'de'], // Add 'de'
+    ```
+
+---
 
 ---
 

@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react';
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Link, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { fetchMedicationDetails } from '../utils/fetchData';
 import type { MedicationDetails, Interaction } from '../utils/types';
 
 const LANGUAGE_MAP: { [key: string]: string } = {
-  en: 'Inglese',
-  es: 'Spagnolo',
-  it: 'Italiano',
+  en: 'English',
+  es: 'Spanish',
+  it: 'Italian',
 };
 
 const COLORS: { [key: string]: string } = {
@@ -19,6 +20,8 @@ const COLORS: { [key: string]: string } = {
 };
 
 const MedicationDetailPage: React.FC = () => {
+  const { t } = useTranslation();
+
   const { name } = useParams<{ name: string }>();
   const [details, setDetails] = useState<MedicationDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -70,13 +73,13 @@ const MedicationDetailPage: React.FC = () => {
   if (error) {
     return (
       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-        <strong className="font-bold">Errore!</strong>
+        <strong className="font-bold">{t('errors.error')}</strong>
         <span className="block sm:inline"> {error}</span>
       </div>
     );
   }
 
-  if (!details) return <p>Nessun dato disponibile.</p>;
+  if (!details) return <p>{t('charts.noDataAvailable')}</p>;
 
   const chartData = details.interactions.map(interaction => {
       const entry: { type: string; [lang: string]: number | string } = { type: interaction.type };
@@ -95,15 +98,25 @@ const MedicationDetailPage: React.FC = () => {
         <svg className="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
-          Torna alla lista
+          {t('medicationDetailPage.back')}
         </Link>
       <h1 className="text-3xl font-bold text-gray-800">{details.name}</h1>
       
       {/* Filtro Lingua */}
       <div className="flex items-center space-x-2 p-1 bg-gray-200 rounded-lg w-max">
-        <button onClick={() => setSelectedLang('total')} className={`px-4 py-1 rounded-md ${selectedLang === 'total' ? 'bg-white shadow' : ''}`}>Aggregato</button>
+        <button 
+          onClick={() => setSelectedLang('total')} 
+          className={`px-4 py-1 rounded-md ${selectedLang === 'total' ? 'bg-white shadow' : ''}`}
+          >
+            {t('medicationDetailPage.languageFilterButton')}
+          </button>
         {availableLanguages.map(lang => (
-            <button key={lang} onClick={() => setSelectedLang(lang)} className={`px-4 py-1 rounded-md ${selectedLang === lang ? 'bg-white shadow' : ''}`}>{LANGUAGE_MAP[lang] || lang.toUpperCase()}</button>
+            <button 
+              key={lang} 
+              onClick={() => setSelectedLang(lang)} className={`px-4 py-1 rounded-md ${selectedLang === lang ? 'bg-white shadow' : ''}`}
+              >
+                {LANGUAGE_MAP[lang] || lang.toUpperCase()}
+              </button>
         ))}
       </div>
 
@@ -119,7 +132,7 @@ const MedicationDetailPage: React.FC = () => {
 
       {/* Grafico */}
       <div className="bg-white p-6 rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-4">Riepilogo Interazioni per Lingua</h2>
+        <h2 className="text-xl font-semibold mb-4">{t('medicationDetailPage.graphTitle')}</h2>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -137,7 +150,7 @@ const MedicationDetailPage: React.FC = () => {
       {/* Questions */}
       {details.questions && details.questions.length > 0 && (
         <div className='bg-white p-6 rounded-lg shadow'>
-          <h2 className='text-xl font-semibold mb-4'> User questions</h2>
+          <h2 className='text-xl font-semibold mb-4'>{t('medicationDetailPage.questionsTitle')}</h2>
           <ul className='space-y-4'>
             {details.questions.map(question => (
               <li key={question.id} className='border-b border-gray-200 pb-3'>
