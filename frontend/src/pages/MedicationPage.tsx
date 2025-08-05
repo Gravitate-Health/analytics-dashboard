@@ -29,7 +29,7 @@ const MedicationPage: React.FC = () => {
     };
 
     loadData();
-  }, []);
+  }, [t]);
 
   if (loading) {
     return (

@@ -6,8 +6,9 @@ import { useTranslation } from 'react-i18next';
 import EventChart from '../components/EventChart';
 import EventSelector from '../components/EventSelector';
 import { fetchAnalyticsData } from '../utils/fetchData';
-import { prepareEventsByDateData } from '../utils/helpers';
+import { getPeriodDates, prepareEventsByDateData } from '../utils/helpers';
 import type { AnalyticsData, EventByDate, EventByPlatform } from '../utils/types';
+import PeriodSelector from '../components/PeriodSelector';
 
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
@@ -16,6 +17,7 @@ const DashboardPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedEvent, setSelectedEvent] = useState('');
+  const [selectedPeriod, setSelectedPeriod] = useState<string>('last30days');
   const [filteredEventData, setFilteredEventData] = useState<EventByDate[]>([]);
   const [filteredPlatformData, setFilteredPlatformData] = useState<EventByPlatform[]>([]);
 
@@ -23,17 +25,22 @@ const DashboardPage: React.FC = () => {
     const loadData = async () => {
       try {
         setLoading(true);
+        const { startDate, endDate } = getPeriodDates(selectedPeriod);
+        const params = new URLSearchParams({startDate, endDate});
+        let apiUrl = `${process.env.REACT_APP_API_URL}/api/eventi`;
 
         if (selectedEvent) {
-          const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/eventi?nome=${selectedEvent}`);
+          params.append('nome', selectedEvent);
+          const response = await axios.get(`${apiUrl}?${params.toString()}`);
           setFilteredEventData(response.data.eventsByDate);
           setFilteredPlatformData(response.data.eventsByPlatform);
         } else {
-          const analyticsData = await fetchAnalyticsData();
-          setData(analyticsData);
+          const response = await axios.get(`${apiUrl}?${params.toString()}`);
+          setData(response.data);
           setFilteredEventData([]);
           setFilteredPlatformData([]);
         }
+
         setError(null);
       } catch (err) {
         setError(t('errors.loadDataError'));
@@ -43,7 +50,7 @@ const DashboardPage: React.FC = () => {
     };
 
     loadData();
-  }, [selectedEvent]);
+  }, [selectedEvent, selectedPeriod, t]);
 
   if (loading) {
     return (
@@ -77,7 +84,7 @@ return (
       {/* Line Chart */}
       <div className="col-span-1 lg:col-span-3 bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4 text-gray-800">{t('charts.lineChartTitle')}</h2>
-        <div className='flex justify-between items-center'>
+        <div className='flex justify-between items-center gap-4'>
           <div className='w-1/2'>
             <EventSelector
               eventList={data?.eventsByType.map(e => e.eventName) || []}
@@ -85,21 +92,18 @@ return (
               onChange={setSelectedEvent}
             />
           </div>
-          <div>
-            <div className="flex items-center space-x-2 text-sm">
-              <span className="text-gray-500">Period time:</span>
-              <span className="font-medium text-gray-700">Last 30 days</span>
-            </div>
+          <div className='w-1/2'>
+            <PeriodSelector selectedPeriod={selectedPeriod} onChange={setSelectedPeriod} />
           </div>
         </div>
         <div className="h-64 mt-4">
-          {filteredEventData.length > 0 ? (
-            <EventChart type="line" data={prepareEventsByDateData(filteredEventData)} xKey="date" yKey="count" name={selectedEvent} />
-          ) : (data && data.eventsByDate.length > 0) ? (
-            <EventChart type="line" data={prepareEventsByDateData(data.eventsByDate)} xKey="date" yKey="count" name="All Events" />
-          ) : (
-            <p className="text-gray-500 text-center mt-10">{t('charts.noDataAvailable')}</p>
-          )}
+          {
+            filteredEventData.length > 0 
+            ? ( <EventChart type="line" data={prepareEventsByDateData(filteredEventData)} xKey="date" yKey="count" name={selectedEvent} /> ) 
+            : (data && data.eventsByDate.length > 0) 
+            ? ( <EventChart type="line" data={prepareEventsByDateData(data.eventsByDate)} xKey="date" yKey="count" name="All Events" /> ) 
+            : ( <p className="text-gray-500 text-center mt-10">{t('charts.noDataAvailable')}</p>)
+          }
         </div>
       </div>
 

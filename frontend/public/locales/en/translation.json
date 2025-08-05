@@ -5,7 +5,8 @@
         "noDataAvailable": "No data available.",
         "noEventAvailable": "No event available.",
         "pieChartEventSelected": "Platform: {{eventName}}",
-        "pieChartDefault": "Platform Distribution"
+        "pieChartDefault": "Platform Distribution",
+        "timePeriodTitle": "Select time period"
     },
     "errors": {
         "error": "Error!",

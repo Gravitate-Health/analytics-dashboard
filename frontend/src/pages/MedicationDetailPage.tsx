@@ -37,7 +37,7 @@ const MedicationDetailPage: React.FC = () => {
         setLoading(false);
       })
       .catch(err => {
-        setError('Impossibile caricare i dati.');
+        setError(t('errors.loadDataError')); 
         setLoading(false);
       });
   }, [name]);
