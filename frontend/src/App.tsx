@@ -1,8 +1,8 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import BaseLayout from './layout/BaseLayout';
-import HomePage from './pages/HomePage';
 import DashboardPage from './pages/DashboardPage';
+import HomePage from './pages/HomePage';
 import MedicationPage from './pages/MedicationPage';
 import MedicationDetailPage from './pages/MedicationDetailPage';
 

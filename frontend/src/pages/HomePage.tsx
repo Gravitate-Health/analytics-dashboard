@@ -1,5 +1,5 @@
-// pages/HomePage.tsx
 import React from 'react';
+
 import gravitateLogo from '../assets/gravitate-logo.png';
 
 const HomePage: React.FC = () => {

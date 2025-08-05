@@ -1,7 +1,9 @@
 import React from 'react';
-import { HeaderProps } from '../utils/types';
+
 import { Link } from 'react-router-dom';
+
 import gravitateLogo from '../assets/gravitate-logo.png';
+import { HeaderProps } from '../utils/types';
 
 const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   return (

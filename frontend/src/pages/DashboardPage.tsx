@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
+
 import axios from 'axios';
 
 import EventChart from '../components/EventChart';
 import EventSelector from '../components/EventSelector';
 import { fetchAnalyticsData } from '../utils/fetchData';
-import type { AnalyticsData, EventByDate, EventByType, EventByPlatform } from '../utils/types';
 import { prepareEventsByDateData } from '../utils/helpers';
+import type { AnalyticsData, EventByDate, EventByPlatform } from '../utils/types';
 
 const DashboardPage: React.FC = () => {
   const [data, setData] = useState<AnalyticsData | null>(null);

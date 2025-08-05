@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 import { AnalyticsData, MedicationDetails, MedicationSummary } from './types';
 
 // URL del backend

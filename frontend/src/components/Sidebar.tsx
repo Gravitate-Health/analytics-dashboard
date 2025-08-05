@@ -1,7 +1,7 @@
 import React from 'react';
-import { Link, NavLink } from 'react-router-dom';
 
-import logo from '../assets/gh-lens.png';
+import { NavLink } from 'react-router-dom';
+
 import { SidebarProps } from '../utils/types';
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, closeSidebar }) => {

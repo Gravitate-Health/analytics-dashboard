@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Link, useParams } from 'react-router-dom';
+
 import { fetchMedicationDetails } from '../utils/fetchData';
 import type { MedicationDetails, Interaction } from '../utils/types';
 
