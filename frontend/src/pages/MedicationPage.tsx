@@ -1,52 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { fetchMedicationSummaryList } from '../utils/fetchData';
-import type { MedicationSummary } from '../utils/types';
+import { useApi }  from '../hooks/useApi';
+import Loading from '../components/Loading';
+import ErrorDisplay from '../components/ErrorDisplay';
 
 const MedicationPage: React.FC = () => {
   const { t } = useTranslation();
-
-  const [summaryList, setSummaryList] = useState<MedicationSummary[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const { data: summaryList, loading, error } = useApi(fetchMedicationSummaryList);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchMedicationSummaryList();
-        setSummaryList(data);
-        setError(null);
-      } catch (err) {
-        setError(t('errors.loadDataError'));
-      } finally {
-        setLoading(false);
-      }
-    };
+  const filteredList = useMemo(() => 
+    summaryList?.filter(item => 
+      item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [],
+  [summaryList, searchTerm]);
 
-    loadData();
-  }, [t]);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-        <strong className="font-bold">{t('errors.error')}</strong>
-        <span className="block sm:inline"> {error}</span>
-      </div>
-    );
-  }
+  if (loading) return <Loading />;
+  if (error) return <ErrorDisplay message={error} />;
 
   return (
     <div className="bg-white rounded-lg shadow p-6" style={{ margin: '3rem' }}>
@@ -84,9 +58,7 @@ const MedicationPage: React.FC = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {summaryList
-              .filter((summary => summary.name.toLowerCase().includes(searchTerm.toLowerCase())))
-              .map((summary) => (
+            {filteredList.map((summary) => (
                 <tr key={summary.name}>
                   <td className="max-w-xs px-6 py-4 whitespace-nowrap font-medium text-gray-900 truncate">
                     <Link to={`/medication/${encodeURIComponent(summary.name)}`} className="text-current cursor-pointer">

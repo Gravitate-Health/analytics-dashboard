@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Link, useParams } from 'react-router-dom';
@@ -6,6 +6,9 @@ import { useTranslation } from 'react-i18next';
 
 import { fetchMedicationDetails } from '../utils/fetchData';
 import type { MedicationDetails, Interaction } from '../utils/types';
+import { useApi } from '../hooks/useApi';
+import Loading from '../components/Loading';
+import ErrorDisplay from '../components/ErrorDisplay';
 
 const LANGUAGE_MAP: { [key: string]: string } = {
   en: 'English',
@@ -21,28 +24,16 @@ const COLORS: { [key: string]: string } = {
 
 const MedicationDetailPage: React.FC = () => {
   const { t } = useTranslation();
-
   const { name } = useParams<{ name: string }>();
-  const [details, setDetails] = useState<MedicationDetails | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [selectedLang, setSelectedLang] = useState<string>('total');
+  const decodedName = useMemo(() => (name ? decodeURIComponent(name) : ''), [name]);
 
-  useEffect(() => {
-    if (!name) return;
-    const decodedName = decodeURIComponent(name);
-    fetchMedicationDetails(decodedName)
-      .then(data => {
-        setDetails(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError(t('errors.loadDataError')); 
-        setLoading(false);
-      });
-  }, [name]);
-  
-  // Tutte le lingue uniche escludendo total
+  const { data: details, loading, error } = useApi(
+    () => fetchMedicationDetails(decodedName),
+    [decodedName]
+  );
+
+    // Tutte le lingue uniche escludendo total
   {/*
     interactions: [
       { counts: { total: 10, en: 8, it: 2 } }, // da Leaflet
@@ -54,40 +45,37 @@ const MedicationDetailPage: React.FC = () => {
     Array.from() -> ['total', 'en', 'it']
     .filter() -> ['en', 'it']
     */}
-  const availableLanguages = details ? 
-    Array.from(new Set(details.interactions.flatMap(i => Object.keys(i.counts))))
-    .filter(lang => lang !== 'total') : [];
+  const availableLanguages = useMemo(() => {
+    if (!details) {
+      return [];
+    }
 
-  const getCountForLang = (interaction: Interaction) => {
-    return interaction.counts[selectedLang] || 0;
-  };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
+    // Get all language keys from all interactions, including duplicates
+    const allLanguageKeys = details.interactions.flatMap(interaction => 
+      Object.keys(interaction.counts)
     );
-  }
 
-  if (error) {
-    return (
-      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-        <strong className="font-bold">{t('errors.error')}</strong>
-        <span className="block sm:inline"> {error}</span>
-      </div>
-    );
-  }
+    const uniqueLanguageKeys = Array.from(new Set(allLanguageKeys));
+    const specificLanguages = uniqueLanguageKeys.filter(lang => lang !== 'total');
 
-  if (!details) return <p>{t('charts.noDataAvailable')}</p>;
+    return specificLanguages;
+  }, [details]);
 
-  const chartData = details.interactions.map(interaction => {
+  const chartData = useMemo(() =>
+    details?.interactions.map(interaction => {
       const entry: { type: string; [lang: string]: number | string } = { type: interaction.type };
-      availableLanguages.forEach(lang => {
-        entry[lang] = interaction.counts[lang] || 0;
-      });
+      availableLanguages.forEach(lang => { entry[lang] = interaction.counts[lang] || 0; });
       return entry;
-  });
+    }) || [],
+  [details, availableLanguages]);
+
+  const getCountForLang = useCallback((interaction: Interaction) => {
+    return interaction.counts[selectedLang] || 0;
+  }, [selectedLang]);
+
+    if (loading) return <Loading />;
+    if (error) return <ErrorDisplay message={error} />;
+    if (!details) return <p>{t('charts.noDataAvailable')}</p>;
 
   return (
     <div className="space-y-6" style={{ margin: '3rem' }}>

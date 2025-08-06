@@ -11,18 +11,14 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
  * @param endDate Data di fine (formato: 'YYYY-MM-DD' o 'today')
  * @returns Dati di analytics
  */
-export const fetchAnalyticsData = async (
-  startDate: string = '30daysAgo',
-  endDate: string = 'today'
-): Promise<AnalyticsData> => {
+export const fetchAnalyticsData = async (startDate: string, endDate: string, eventName?: string): Promise<AnalyticsData> => {
   try {
-    const response = await axios.get(`${API_URL}/api/eventi`, {
-      params: {
-        startDate,
-        endDate,
-      },
-    });
+    const params: {startDate: string; endDate: string; name?: string} = {startDate, endDate};
+    if (eventName) { 
+      params.name = eventName; 
+    }
 
+    const response = await axios.get(`${API_URL}/api/eventi`, {params});
     return response.data;
   } catch (error) {
     console.error('Errore durante il recupero dei dati:', error);

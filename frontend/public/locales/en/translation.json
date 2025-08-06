@@ -1,9 +1,12 @@
 {
     "charts": {
+        "allEvents": "All events",
         "barChartTitle": "Events by Type",
         "lineChartTitle": "Events Trend",
         "noDataAvailable": "No data available.",
         "noEventAvailable": "No event available.",
+        "noPlatformDataAvailable": "No platform data available.",
+        "noPlatformEventDataAvailable": "No platform data for this event",
         "pieChartEventSelected": "Platform: {{eventName}}",
         "pieChartDefault": "Platform Distribution",
         "timePeriodTitle": "Select time period"
