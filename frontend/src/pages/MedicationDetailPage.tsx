@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Link, useParams } from 'react-router-dom';
@@ -9,19 +9,44 @@ import type { MedicationDetails, Interaction } from '../utils/types';
 import { useApi } from '../hooks/useApi';
 import Loading from '../components/Loading';
 import ErrorDisplay from '../components/ErrorDisplay';
-import { exportSectionsToCsv, exportSectionsToPdf } from '../utils/export';
 import ExportComponent from '../components/ExportComponent';
+import { ReportSection, useReportExporter } from '../hooks/useReportExporter';
+import { COLORS, LANGUAGE_MAP } from '../utils/constants';
 
-const LANGUAGE_MAP: { [key: string]: string } = {
-  en: 'English',
-  es: 'Spanish',
-  it: 'Italian',
-};
 
-const COLORS: { [key: string]: string } = {
-  en: '#8884d8',
-  es: '#82ca9d',
-  it: '#ffc658',
+
+const prepareMedicationReport = (details: MedicationDetails, availableLanguages: string[], t: (key: string) => string): ReportSection[] => {
+  const sections: ReportSection[] = [];
+
+  // Section 1: Interaction Summary (KPIs)
+  if (details.interactions && details.interactions.length > 0) {
+    const interactionData = details.interactions.map(item => {
+      const languageCounts = availableLanguages.reduce((acc, lang) => {
+        const langName = LANGUAGE_MAP[lang] || lang.toUpperCase();
+        acc[langName] = item.counts[lang] || 0;
+        return acc;
+      }, {} as { [key: string]: number });
+
+      return {
+        'Interaction Type': item.type,
+        'Total Count': item.counts.total || 0,
+        ...languageCounts,
+      };
+    });
+    sections.push({ title: `Interaction Summary for ${details.name}`, data: interactionData });
+  }
+
+  // Section 2: User Questions
+  if (details.questions && details.questions.length > 0) {
+    const questionsData = details.questions.map(q => ({
+      'Question': q.question,
+      'Language': LANGUAGE_MAP[q.lang] || q.lang.toUpperCase(),
+      'Date': new Date(q.timestamp).toLocaleDateString('it-IT'),
+    }));
+    sections.push({ title: t('medicationDetailPage.questionsTitle'), data: questionsData });
+  }
+
+  return sections;
 };
 
 const MedicationDetailPage: React.FC = () => {
@@ -75,50 +100,11 @@ const MedicationDetailPage: React.FC = () => {
     return interaction.counts[selectedLang] || 0;
   }, [selectedLang]);
 
-  const prepareFullReport = () => {
-    if (!details) return [];
-
-    // Section 1: KPI Card data formatted into a table
-    const kpiData = details.interactions.map(item => ({
-      'Interaction Type': item.type,
-      'Total Count': item.counts.total || 0,
-      ...availableLanguages.reduce((acc, lang) => {
-        acc[LANGUAGE_MAP[lang] || lang.toUpperCase()] = item.counts[lang] || 0;
-        return acc;
-      }, {} as {[key: string]: number}),
-    }));
-
-    // Section 2: User Questions data
-    const questionsData = (details.questions || []).map(q => ({
-      Question: q.question,
-      Language: q.lang.toUpperCase(),
-      Date: new Date(q.timestamp).toLocaleDateString('it-IT'),
-    }));
-
-    const sections = [];
-    if (kpiData.length > 0) {
-      sections.push({ title: `Interaction Summary for ${details.name}`, data: kpiData });
-    }
-    if (questionsData.length > 0) {
-      sections.push({ title: 'User Questions', data: questionsData });
-    }
-    
-    return sections;
-  };
-
-  const handleExportCsv = () => {
-    const reportData = prepareFullReport();
-    if (reportData.length > 0) {
-      exportSectionsToCsv(reportData, `${decodedName}-full-report`);
-    }
-  };
-
-  const handleExportPdf = () => {
-    const reportData = prepareFullReport();
-    if (reportData.length > 0) {
-      exportSectionsToPdf(reportData, `${decodedName}-full-report`);
-    }
-  };
+  const { handleExportCsv, handleExportPdf } = useReportExporter({
+    data: details,
+    prepareReportFn: (medData) => prepareMedicationReport(medData, availableLanguages, t),
+    filenamePrefix: `${decodedName}-full-report`
+  });
 
     if (loading) return <Loading />;
     if (error) return <ErrorDisplay message={error} />;

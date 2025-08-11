@@ -16,7 +16,7 @@ const BaseLayout: React.FC = () => {
       {isSidebarOpen && (
         <div onClick={toggleSidebar} className='fixed inset-0 bg-black opacity-50 z-20' aria-hidden="true"></div>
       )}
-      <div className="flex flex-col h-screen flex-1">
+      <div className="flex flex-col h-screen flex-1 min-w-0">
         <Header toggleSidebar={toggleSidebar}/>
         <main className="flex-1 overflow-y-auto">
           <Outlet />

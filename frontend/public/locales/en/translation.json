@@ -16,6 +16,7 @@
     },
     "errors": {
         "error": "Error!",
+        "exportError": "No data to export.",
         "loadDataError": "Error loading data. Try again later."
     },
     "header": {
@@ -43,6 +44,11 @@
         "graphTitle": "Interactions by language summary",
         "questionLanguageLabel": "Language:",
         "questionsTitle": "User questions"
+    },
+    "reports": {
+        "buttonText": "Export Report",
+        "csvButtonText": "Export as CSV",
+        "pdfButtonText": "Export as PDF"
     },
     "sidebar": {
         "navigation": {

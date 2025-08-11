@@ -5,13 +5,47 @@ import { useTranslation } from 'react-i18next';
 import EventChart from '../components/EventChart';
 import EventSelector from '../components/EventSelector';
 import { fetchAnalyticsData } from '../utils/fetchData';
-import { getPeriodDates, prepareEventsByDateData } from '../utils/helpers';
+import { formatDate, getPeriodDates, prepareEventsByDateData } from '../utils/helpers';
 import PeriodSelector from '../components/PeriodSelector';
 import { useApi } from '../hooks/useApi';
 import Loading from '../components/Loading';
 import ErrorDisplay from '../components/ErrorDisplay';
-import { exportSectionsToCsv, exportSectionsToPdf } from '../utils/export';
 import ExportComponent from '../components/ExportComponent';
+import { ReportSection, useReportExporter } from '../hooks/useReportExporter';
+import { AnalyticsData } from '../utils/types';
+
+const prepareDashboardReport = (data: AnalyticsData, t: (key: string) => string): ReportSection[] => {
+  const prepareEventsByDateData = (events: AnalyticsData['eventsByDate']) => {
+    if (!events || events.length === 0) {
+      return [];
+    }
+    return events.map(event => ({
+      'Date': formatDate(event.date),
+      'Count': event.count,
+    }));
+  };
+
+  return [
+    {
+      title: t('charts.lineChartTitle'),
+      data: prepareEventsByDateData(data.eventsByDate),
+    },
+    {
+      title: t('charts.barChartTitle'),
+      data: data.eventsByType.map(({ eventName, count }) => ({
+        'Event Type': eventName,
+        'Occurrences': count,
+      })),
+    },
+    {
+      title: t('charts.pieChartDefault'),
+      data: data.eventsByPlatform.map(({ platform, count }) => ({
+        'Platform': platform,
+        'Count': count,
+      })),
+    },
+  ];
+};
 
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
@@ -24,35 +58,11 @@ const DashboardPage: React.FC = () => {
     [startDate, endDate, selectedEvent]
   );
 
-  const prepareFullReport = () => {
-    if (!data) return [];
-    
-    // Structure all page data into sections for the report
-    return [
-      { 
-        title: t('charts.lineChartTitle'), 
-        data: prepareEventsByDateData(data.eventsByDate) 
-      },
-      { 
-        title: 'Events by Type', 
-        data: data.eventsByType.map(({ eventName, count }) => ({ Name: eventName, Occurrences: count }))
-      },
-      { 
-        title: t('charts.pieChartDefault'), 
-        data: data.eventsByPlatform.map(({ platform, count }) => ({ Platform: platform, Count: count }))
-      },
-    ];
-  };
-
-  const handleExportCsv = () => {
-    const reportData = prepareFullReport();
-    exportSectionsToCsv(reportData, `dashboard-report-${selectedPeriod}`);
-  };
-
-  const handleExportPdf = () => {
-    const reportData = prepareFullReport();
-    exportSectionsToPdf(reportData, `dashboard-report-${selectedPeriod}`);
-  };
+  const { handleExportCsv, handleExportPdf } = useReportExporter({
+    data: data,
+    prepareReportFn: (apiData) => prepareDashboardReport(apiData, t),
+    filenamePrefix: `dashboard-report-${selectedPeriod}`
+  });
   
   if (loading) return <Loading />;
   if (error) return <ErrorDisplay message={error} />;
@@ -68,17 +78,18 @@ const DashboardPage: React.FC = () => {
 
 
 return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" style={{ margin: '3rem' }}>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ margin: '3rem' }}>
 
-    <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow">
-      <p className="text-lg font-semibold text-gray-700">{t('dashboardPage.title')}</p>
-      <ExportComponent onExportCsv={handleExportCsv} onExportPdf={handleExportPdf} isDisabled={!data} />
-    </div>
+    <div className="col-span-full flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-gray-800">{t('dashboardPage.title')}</h1>
+        <ExportComponent onExportCsv={handleExportCsv} onExportPdf={handleExportPdf} isDisabled={!data} />
+      </div>
+
 
       {/* Line Chart */}
-      <div className="col-span-1 lg:col-span-3 bg-white rounded-lg shadow p-6">
+      <div className="col-span-full lg:col-span-3 bg-white rounded-lg shadow p-6 flex flex-col">
         <h2 className="text-xl font-semibold mb-4 text-gray-800">{t('charts.lineChartTitle')}</h2>
-        <div className='flex justify-between items-center gap-4'>
+        <div className='flex flex-col md:flex-row justify-between items-center gap-4'>
           <div className='w-1/2'>
             <EventSelector
               eventList={data?.eventsByType.map(e => e.eventName) || []}
@@ -100,7 +111,7 @@ return (
 
       {/* Bar Chart */}
       <div className="col-span-1 md:col-span-2 lg:col-span-3 bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold mb-4 text-gray-800">Events by Type</h2>
+        <h2 className="text-xl font-semibold mb-4 text-gray-800">{t('charts.barChartTitle')}</h2>
         <div className="h-64">
           {(data && data.eventsByType.length > 0) ? (
             <EventChart type="bar" data={data.eventsByType} xKey="eventName" yKey="count" name="Occurrences" />

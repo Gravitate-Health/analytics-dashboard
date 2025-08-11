@@ -1,34 +1,29 @@
-// src/utils/exportUtils.ts
-
+import { TFunction } from 'i18next';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-// Define the shape for a section of the report
 interface ReportSection {
   title: string;
   data: { [key: string]: any }[];
 }
 
-/**
- * Exports a multi-section report to a single CSV file.
- * Sections are separated by titles and blank rows.
- * @param sections The array of report sections to export.
- * @param fileName The desired name of the output file.
- */
+const hasDataToExport = (sections: ReportSection[]): boolean => {
+    if (!sections || sections.length === 0 || sections.every(s => s.data.length === 0)) {
+        return false;
+    }
+    return true;
+  };
+
 export const exportSectionsToCsv = (sections: ReportSection[], fileName: string) => {
-  if (!sections || sections.length === 0) {
-    alert('No data to export.');
-    return;
-  }
+  
+  if (!hasDataToExport(sections)) return;
 
   const csvRows: string[] = [];
 
   sections.forEach(section => {
     if (section.data.length === 0) return;
 
-    // Add section title
     csvRows.push(`"${section.title}"`);
-    
     const headers = Object.keys(section.data[0]);
     csvRows.push(headers.join(',')); // Header row
 
@@ -54,17 +49,9 @@ export const exportSectionsToCsv = (sections: ReportSection[], fileName: string)
   document.body.removeChild(link);
 };
 
-/**
- * Exports a multi-section report to a single PDF file.
- * Each section gets its own title and table.
- * @param sections The array of report sections to export.
- * @param fileName The desired name of the output file.
- */
 export const exportSectionsToPdf = (sections: ReportSection[], fileName: string) => {
-  if (!sections || sections.length === 0) {
-    alert('No data to export.');
-    return;
-  }
+  
+    if (!hasDataToExport(sections)) return;
 
   const doc = new jsPDF();
   let finalY = 20; // Track the Y position for the next table
@@ -96,31 +83,16 @@ export const exportSectionsToPdf = (sections: ReportSection[], fileName: string)
   doc.save(`${fileName}.pdf`);
 };
 
-/**
- * Creates and returns an export event handler function.
- * @param format The desired export format ('csv' or 'pdf').
- * @param prepareData A function that returns the report data in the required sections format.
- * @param fileName The base name for the exported file.
- * @returns An event handler function `() => void`.
- */
-export const createExportHandler = (
-    format: 'csv' | 'pdf',
-    prepareData: () => ReportSection[],
-    fileName: string
-  ) => {
-    // This is the actual handler that will be returned and used in your component
+export const createExportHandler = (format: 'csv' | 'pdf', prepareData: () => ReportSection[], fileName: string, t: TFunction) => {
     return () => {
       const reportData = prepareData();
       
-      if (!reportData || reportData.length === 0 || reportData.every(s => s.data.length === 0)) {
-        alert('No data available to export.');
+      if (!hasDataToExport(reportData)) {
+        alert(t('errors.exportError')); 
         return;
       }
   
-      if (format === 'csv') {
-        exportSectionsToCsv(reportData, fileName);
-      } else {
-        exportSectionsToPdf(reportData, fileName);
-      }
+      if (format === 'csv') {exportSectionsToCsv(reportData, fileName);} 
+      else {exportSectionsToPdf(reportData, fileName);}
     };
   };
