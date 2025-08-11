@@ -1,14 +1,12 @@
-// src/components/UnifiedExportComponent.tsx
-
 import React, { useState } from 'react';
 
-interface UnifiedExportComponentProps {
+interface ExportComponentProps {
   onExportCsv: () => void;
   onExportPdf: () => void;
   isDisabled: boolean;
 }
 
-const UnifiedExportComponent: React.FC<UnifiedExportComponentProps> = ({ 
+const ExportComponent: React.FC<ExportComponentProps> = ({ 
   onExportCsv, 
   onExportPdf, 
   isDisabled 
@@ -55,4 +53,4 @@ const UnifiedExportComponent: React.FC<UnifiedExportComponentProps> = ({
   );
 };
 
-export default UnifiedExportComponent;
+export default ExportComponent;
