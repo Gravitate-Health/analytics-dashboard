@@ -11,6 +11,9 @@
         "pieChartDefault": "Platform Distribution",
         "timePeriodTitle": "Select time period"
     },
+    "dashboardPage": {
+        "title": "Analytics summary"
+    },
     "errors": {
         "error": "Error!",
         "loadDataError": "Error loading data. Try again later."

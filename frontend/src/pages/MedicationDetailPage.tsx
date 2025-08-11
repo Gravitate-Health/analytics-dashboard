@@ -9,6 +9,8 @@ import type { MedicationDetails, Interaction } from '../utils/types';
 import { useApi } from '../hooks/useApi';
 import Loading from '../components/Loading';
 import ErrorDisplay from '../components/ErrorDisplay';
+import { exportSectionsToCsv, exportSectionsToPdf } from '../utils/export';
+import ExportComponent from '../components/ExportComponent';
 
 const LANGUAGE_MAP: { [key: string]: string } = {
   en: 'English',
@@ -73,6 +75,51 @@ const MedicationDetailPage: React.FC = () => {
     return interaction.counts[selectedLang] || 0;
   }, [selectedLang]);
 
+  const prepareFullReport = () => {
+    if (!details) return [];
+
+    // Section 1: KPI Card data formatted into a table
+    const kpiData = details.interactions.map(item => ({
+      'Interaction Type': item.type,
+      'Total Count': item.counts.total || 0,
+      ...availableLanguages.reduce((acc, lang) => {
+        acc[LANGUAGE_MAP[lang] || lang.toUpperCase()] = item.counts[lang] || 0;
+        return acc;
+      }, {} as {[key: string]: number}),
+    }));
+
+    // Section 2: User Questions data
+    const questionsData = (details.questions || []).map(q => ({
+      Question: q.question,
+      Language: q.lang.toUpperCase(),
+      Date: new Date(q.timestamp).toLocaleDateString('it-IT'),
+    }));
+
+    const sections = [];
+    if (kpiData.length > 0) {
+      sections.push({ title: `Interaction Summary for ${details.name}`, data: kpiData });
+    }
+    if (questionsData.length > 0) {
+      sections.push({ title: 'User Questions', data: questionsData });
+    }
+    
+    return sections;
+  };
+
+  const handleExportCsv = () => {
+    const reportData = prepareFullReport();
+    if (reportData.length > 0) {
+      exportSectionsToCsv(reportData, `${decodedName}-full-report`);
+    }
+  };
+
+  const handleExportPdf = () => {
+    const reportData = prepareFullReport();
+    if (reportData.length > 0) {
+      exportSectionsToPdf(reportData, `${decodedName}-full-report`);
+    }
+  };
+
     if (loading) return <Loading />;
     if (error) return <ErrorDisplay message={error} />;
     if (!details) return <p>{t('charts.noDataAvailable')}</p>;
@@ -88,7 +135,15 @@ const MedicationDetailPage: React.FC = () => {
         </svg>
           {t('medicationDetailPage.back')}
         </Link>
-      <h1 className="text-3xl font-bold text-gray-800">{details.name}</h1>
+
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-gray-800">{details.name}</h1>
+        <ExportComponent 
+          onExportCsv={handleExportCsv}
+          onExportPdf={handleExportPdf}
+          isDisabled={!details}
+        />
+      </div>
       
       {/* Filtro Lingua */}
       <div className="flex items-center space-x-2 p-1 bg-gray-200 rounded-lg w-max">
