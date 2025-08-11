@@ -10,8 +10,6 @@ import PeriodSelector from '../components/PeriodSelector';
 import { useApi } from '../hooks/useApi';
 import Loading from '../components/Loading';
 import ErrorDisplay from '../components/ErrorDisplay';
-import { exportSectionsToCsv, exportSectionsToPdf } from '../utils/export';
-import ExportComponent from '../components/ExportComponent';
 
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
@@ -23,36 +21,6 @@ const DashboardPage: React.FC = () => {
     () => fetchAnalyticsData(startDate, endDate, selectedEvent),
     [startDate, endDate, selectedEvent]
   );
-
-  const prepareFullReport = () => {
-    if (!data) return [];
-    
-    // Structure all page data into sections for the report
-    return [
-      { 
-        title: t('charts.lineChartTitle'), 
-        data: prepareEventsByDateData(data.eventsByDate) 
-      },
-      { 
-        title: 'Events by Type', 
-        data: data.eventsByType.map(({ eventName, count }) => ({ Name: eventName, Occurrences: count }))
-      },
-      { 
-        title: t('charts.pieChartDefault'), 
-        data: data.eventsByPlatform.map(({ platform, count }) => ({ Platform: platform, Count: count }))
-      },
-    ];
-  };
-
-  const handleExportCsv = () => {
-    const reportData = prepareFullReport();
-    exportSectionsToCsv(reportData, `dashboard-report-${selectedPeriod}`);
-  };
-
-  const handleExportPdf = () => {
-    const reportData = prepareFullReport();
-    exportSectionsToPdf(reportData, `dashboard-report-${selectedPeriod}`);
-  };
   
   if (loading) return <Loading />;
   if (error) return <ErrorDisplay message={error} />;
@@ -69,11 +37,6 @@ const DashboardPage: React.FC = () => {
 
 return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" style={{ margin: '3rem' }}>
-
-    <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow">
-      <p className="text-lg font-semibold text-gray-700">{t('dashboardPage.title')}</p>
-      <ExportComponent onExportCsv={handleExportCsv} onExportPdf={handleExportPdf} isDisabled={!data} />
-    </div>
 
       {/* Line Chart */}
       <div className="col-span-1 lg:col-span-3 bg-white rounded-lg shadow p-6">
