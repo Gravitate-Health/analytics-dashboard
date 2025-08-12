@@ -12,6 +12,7 @@ import ErrorDisplay from '../components/ErrorDisplay';
 import ExportComponent from '../components/ExportComponent';
 import { ReportSection, useReportExporter } from '../hooks/useReportExporter';
 import { COLORS, LANGUAGE_MAP } from '../utils/constants';
+import { transformInteractionData } from '../utils/helpers';
 
 
 
@@ -89,12 +90,11 @@ const MedicationDetailPage: React.FC = () => {
   }, [details]);
 
   const chartData = useMemo(() =>
-    details?.interactions.map(interaction => {
-      const entry: { type: string; [lang: string]: number | string } = { type: interaction.type };
-      availableLanguages.forEach(lang => { entry[lang] = interaction.counts[lang] || 0; });
-      return entry;
-    }) || [],
-  [details, availableLanguages]);
+    details?.interactions?.map(interaction =>
+      transformInteractionData(interaction, availableLanguages)
+    ) || [],
+  [details, availableLanguages]
+);
 
   const getCountForLang = useCallback((interaction: Interaction) => {
     return interaction.counts[selectedLang] || 0;

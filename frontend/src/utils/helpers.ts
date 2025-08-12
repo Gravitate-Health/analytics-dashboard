@@ -1,4 +1,4 @@
-import type { EventByDate } from './types';
+import type { EventByDate, Interaction, LanguageCounts } from './types';
 
 export const formatDate = (dateString: string): string => {
     if (dateString && dateString.length === 8) {
@@ -49,4 +49,24 @@ export const getPeriodDates = (periodValue: string): DateRange => {
   }
   
   return period.dates;
+};
+
+/**
+ * Transforms a single interaction object into a data entry for a chart.
+ * It ensures a count of 0 is present for any language that is missing.
+ *
+ * @param {object} interaction - The interaction object, e.g., { type: 'app_open', counts: { en: 10 } }.
+ * @param {string[]} availableLanguages - An array of language codes, e.g., ['en', 'it'].
+ * @returns {object} A chart-ready object, e.g., { type: 'app_open', en: 10, it: 0 }.
+ */
+export const transformInteractionData = (interaction: Interaction, availableLanguages: string[]) => {
+  const entry: { type: string; [key: string]: string | number } = {
+    type: interaction.type,
+  };
+
+  availableLanguages.forEach(lang => {
+    entry[lang] = interaction.counts?.[lang] || 0;
+  });
+
+  return entry;
 };
