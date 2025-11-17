@@ -18,9 +18,9 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
           </Link>
         </div>
         <div className="flex-none">
-          <h1 className="text-2xl font-bold text-white whitespace-nowrap">  
+          {/* <h1 className="text-2xl font-bold text-white whitespace-nowrap">
             {t('header.title')}
-          </h1>
+          </h1> */}
         </div>
         <div className="flex-1 flex justify-end">
           <button onClick={toggleSidebar} className="text-white focus:outline-none" aria-label="Open sidebar">

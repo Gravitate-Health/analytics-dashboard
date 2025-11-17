@@ -6,6 +6,7 @@ import EventChart from '../components/EventChart';
 import EventSelector from '../components/EventSelector';
 import { fetchAnalyticsData } from '../utils/fetchData';
 import { formatDate, getPeriodDates, prepareEventsByDateData } from '../utils/helpers';
+import { getEventLabel } from '../utils/constants';
 import PeriodSelector from '../components/PeriodSelector';
 import { useApi } from '../hooks/useApi';
 import Loading from '../components/Loading';
@@ -112,9 +113,19 @@ return (
       {/* Bar Chart */}
       <div className="col-span-1 md:col-span-2 lg:col-span-3 bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4 text-gray-800">{t('charts.barChartTitle')}</h2>
-        <div className="h-64">
+        <div className="h-96">
           {(data && data.eventsByType.length > 0) ? (
-            <EventChart type="bar" data={data.eventsByType} xKey="eventName" yKey="count" name="Occurrences" />
+            <EventChart
+              type="bar"
+              data={data.eventsByType.map(e => ({
+                ...e,
+                rawEventName: e.eventName,
+                displayName: getEventLabel(e.eventName)
+              }))}
+              xKey="displayName"
+              yKey="count"
+              name="Occurrences"
+            />
           ) : (
             <p className="text-gray-500 text-center mt-10">{t('charts.noDataAvailable')}</p>
           )}
