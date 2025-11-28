@@ -18,7 +18,7 @@ export const fetchAnalyticsData = async (startDate: string, endDate: string, eve
       params.name = eventName; 
     }
 
-    const response = await axios.get(`${API_URL}/api/eventi`, {params});
+    const response = await axios.get(`${API_URL}/eventi`, {params});
     return response.data;
   } catch (error) {
     console.error('Errore durante il recupero dei dati:', error);
@@ -28,7 +28,7 @@ export const fetchAnalyticsData = async (startDate: string, endDate: string, eve
 
 export const fetchMedicationSummaryList = async (): Promise<MedicationSummary[]> => {
   try {
-    const response = await axios.get(`${API_URL}/api/medications`);
+    const response = await axios.get(`${API_URL}/medications`);
     return response.data;
   } catch (error) {
     console.error('Errore durante il recupero della lista dei farmaci:', error);
@@ -40,7 +40,7 @@ export const fetchMedicationSummaryList = async (): Promise<MedicationSummary[]>
 export const fetchMedicationDetails = async (medicationName: string): Promise<MedicationDetails> => {
   try {
     const encodedName = encodeURIComponent(medicationName);
-    const response = await axios.get(`${API_URL}/api/medication/${encodedName}`);
+    const response = await axios.get(`${API_URL}/medication/${encodedName}`);
     return response.data;
   } catch (error) {
     console.error('Errore durante il recupero dei dettagli del farmaco:', error);
