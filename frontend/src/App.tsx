@@ -1,10 +1,13 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import BaseLayout from './layout/BaseLayout';
 import DashboardPage from './pages/DashboardPage';
 import HomePage from './pages/HomePage';
 import MedicationPage from './pages/MedicationPage';
 import MedicationDetailPage from './pages/MedicationDetailPage';
+import { ENABLE_LOGIN } from './utils/constants';
 
 import './App.css';
 
@@ -15,15 +18,28 @@ const router = createBrowserRouter([
     // errorElement: <ErrorPage />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: '/dashboard', element: <DashboardPage /> },
-      { path: '/medications', element: <MedicationPage /> },
-      { path: '/medication/:name', element: <MedicationDetailPage /> },
+      { 
+        path: '/dashboard', 
+        element: ENABLE_LOGIN ? <ProtectedRoute><DashboardPage /></ProtectedRoute> : <DashboardPage />
+      },
+      { 
+        path: '/medications', 
+        element: ENABLE_LOGIN ? <ProtectedRoute><MedicationPage /></ProtectedRoute> : <MedicationPage />
+      },
+      { 
+        path: '/medication/:name', 
+        element: ENABLE_LOGIN ? <ProtectedRoute><MedicationDetailPage /></ProtectedRoute> : <MedicationDetailPage />
+      },
     ],
   },
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 }
 
 export default App;

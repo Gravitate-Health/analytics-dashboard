@@ -10,6 +10,10 @@ export const COLORS: { [key: string]: string } = {
     it: '#ffc658',
   };
 
+// Abilita/disabilita il sistema di login
+// Impostare a false per rimuovere completamente l'autenticazione
+export const ENABLE_LOGIN = false;
+
 const EVENT_LABELS: Record<string, string> = {
   screen_view: 'Screen View',
   user_engagement: 'Engagement',

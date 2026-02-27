@@ -20,11 +20,20 @@
         "loadDataError": "Error loading data. Try again later."
     },
     "header": {
-      "title": "GH-DASH"
+      "title": "GH-DASH",
+      "logout": "Logout"
     },
     "homePage": {
-        "title": "A DIGITAL HEALTH INFORMATION JOURNEY",
-        "subtitle": "\"Empowering and equipping Europeans with health information for active personal health management and adherence to treatment\""
+        "title": "Gravitate Health Analytics Dashboard",
+        "subtitle": "Track mobile app usage events, explore medication-specific interactions across different sections and languages, and analyze user engagement patterns with comprehensive data visualization and export capabilities",
+        "loginTitle": "Login",
+        "username": "Username",
+        "password": "Password",
+        "usernamePlaceholder": "Enter your username",
+        "passwordPlaceholder": "Enter your password",
+        "loginButton": "Sign In",
+        "loginError": "Invalid username or password",
+        "loginHint": "Default credentials: admin / admin123"
     },
     "medicationPage": {
         "title": "Medication summary",

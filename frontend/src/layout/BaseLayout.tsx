@@ -18,7 +18,7 @@ const BaseLayout: React.FC = () => {
       )}
       <div className="flex flex-col h-screen flex-1 min-w-0">
         <Header toggleSidebar={toggleSidebar}/>
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto hide-scrollbar">
           <Outlet />
         </main>
       </div>

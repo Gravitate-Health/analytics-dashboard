@@ -12,6 +12,25 @@ body {
   color: #003865; /* Default text color */
 }
 
+/* Nasconde la scrollbar ma mantiene lo scroll */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+/* Sfondo hero Gravitate Health */
+.bg-gravitate-hero {
+  background-image: url('./assets/gravitate-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
 
 /* Stili personalizzati per la dashboard */
 .recharts-default-tooltip {
