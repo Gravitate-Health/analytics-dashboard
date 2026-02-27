@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(cors());
 
 // Endpoint per recuperare i dati degli eventi
-app.get('/eventi', async (req, res) => {
+app.get('/api/eventi', async (req, res) => {
   try {
     const startDate = req.query.startDate as string || '30daysAgo';
     const endDate = req.query.endDate as string || 'today';
@@ -37,7 +37,7 @@ app.get('/eventi', async (req, res) => {
   }
 });
 
-app.get('/medications', async (req, res) => {
+app.get('/api/medications', async (req, res) => {
   try {
     const data = await getMedicationSummaryList(); 
     res.json(data);
@@ -47,7 +47,7 @@ app.get('/medications', async (req, res) => {
 });
 
 // TODO: controllo se non esiste il farmaco
-app.get('/medication/:name', async (req, res) => {
+app.get('/api/medication/:name', async (req, res) => {
   try {
     const medicationName = decodeURIComponent(req.params.name);
     const data = await getMedicationDetails(medicationName);
