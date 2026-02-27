@@ -39,8 +39,9 @@ export const fetchMedicationSummaryList = async (): Promise<MedicationSummary[]>
 
 export const fetchMedicationDetails = async (medicationName: string): Promise<MedicationDetails> => {
   try {
-    const encodedName = encodeURIComponent(medicationName);
-    const response = await axios.get(`${API_URL}/medication/${encodedName}`);
+    const response = await axios.get(`${API_URL}/medication`, {
+      params: { name: medicationName }
+    });
     return response.data;
   } catch (error) {
     console.error('Errore durante il recupero dei dettagli del farmaco:', error);

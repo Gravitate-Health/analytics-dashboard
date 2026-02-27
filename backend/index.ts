@@ -47,9 +47,12 @@ app.get('/api/medications', async (req, res) => {
 });
 
 // TODO: controllo se non esiste il farmaco
-app.get('/api/medication/:name', async (req, res) => {
+app.get('/api/medication', async (req, res) => {
   try {
-    const medicationName = decodeURIComponent(req.params.name);
+    const medicationName = req.query.name as string;
+    if (!medicationName) {
+      return res.status(400).json({ message: 'Medication name is required' });
+    }
     const data = await getMedicationDetails(medicationName);
     res.json(data);
   } catch (error) {
