@@ -54,6 +54,13 @@ const MedicationDetailPage: React.FC = () => {
   const { t } = useTranslation();
   const { name } = useParams<{ name: string }>();
   const [selectedLang, setSelectedLang] = useState<string>('total');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [filterLang, setFilterLang] = useState<string>('all');
+  const [filterStartDate, setFilterStartDate] = useState<string>('');
+  const [filterEndDate, setFilterEndDate] = useState<string>('');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const questionsPerPage = 20;
   const decodedName = useMemo(() => (name ? decodeURIComponent(name) : ''), [name]);
 
   const { data: details, loading, error } = useApi(
@@ -99,6 +106,74 @@ const MedicationDetailPage: React.FC = () => {
   const getCountForLang = useCallback((interaction: Interaction) => {
     return interaction.counts[selectedLang] || 0;
   }, [selectedLang]);
+
+  // Lingue disponibili nelle domande
+  const questionLanguages = useMemo(() => {
+    if (!details?.questions) return [];
+    const langs = Array.from(new Set(details.questions.map(q => q.lang)));
+    return langs.sort();
+  }, [details?.questions]);
+
+  // Filtro e paginazione delle domande
+  const filteredQuestions = useMemo(() => {
+    if (!details?.questions) return [];
+    
+    const filtered = details.questions.filter(q => {
+      // Filtro per testo
+      if (searchQuery.trim() && !q.question.toLowerCase().includes(searchQuery.toLowerCase())) {
+        return false;
+      }
+      
+      // Filtro per lingua
+      if (filterLang !== 'all' && q.lang !== filterLang) {
+        return false;
+      }
+      
+      // Filtro per data
+      const questionDate = new Date(q.timestamp);
+      if (filterStartDate && questionDate < new Date(filterStartDate)) {
+        return false;
+      }
+      if (filterEndDate) {
+        const endDate = new Date(filterEndDate);
+        endDate.setHours(23, 59, 59, 999); // Include l'intera giornata finale
+        if (questionDate > endDate) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+
+    // Ordinamento cronologico
+    return filtered.sort((a, b) => {
+      const dateA = new Date(a.timestamp).getTime();
+      const dateB = new Date(b.timestamp).getTime();
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
+  }, [details?.questions, searchQuery, filterLang, filterStartDate, filterEndDate, sortOrder]);
+
+  const totalPages = Math.ceil(filteredQuestions.length / questionsPerPage);
+  
+  const paginatedQuestions = useMemo(() => {
+    const startIndex = (currentPage - 1) * questionsPerPage;
+    const endIndex = startIndex + questionsPerPage;
+    return filteredQuestions.slice(startIndex, endIndex);
+  }, [filteredQuestions, currentPage, questionsPerPage]);
+
+  // Reset alla prima pagina quando cambiano i filtri
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterLang, filterStartDate, filterEndDate, sortOrder]);
+
+  // Reset di tutti i filtri
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setFilterLang('all');
+    setFilterStartDate('');
+    setFilterEndDate('');
+    setSortOrder('newest');
+  };
 
   const { handleExportCsv, handleExportPdf } = useReportExporter({
     data: details,
@@ -179,19 +254,133 @@ const MedicationDetailPage: React.FC = () => {
       {/* Questions */}
       {details.questions && details.questions.length > 0 && (
         <div className='bg-white p-6 rounded-lg shadow'>
-          <h2 className='text-xl font-semibold mb-4'>{t('medicationDetailPage.questionsTitle')}</h2>
-          <ul className='space-y-4'>
-            {details.questions.map(question => (
-              <li key={question.id} className='border-b border-gray-200 pb-3'>
-                <p className='text-gray-800'>{question.question}</p>
-                <div className='text-xs text-gray-400 mt-1 flex items-center space-x-2'>
-                  <span>Language: {question.lang.toUpperCase()}</span>
-                  <span>-</span>
-                  <span>{new Date(question.timestamp).toLocaleDateString('it-IT')}</span>
+          <div className='flex justify-between items-center mb-4'>
+            <h2 className='text-xl font-semibold'>{t('medicationDetailPage.questionsTitle')}</h2>
+            <div className='text-sm text-gray-500'>
+              {filteredQuestions.length} {filteredQuestions.length === 1 ? t('medicationDetailPage.question') : t('medicationDetailPage.questions')}
+            </div>
+          </div>
+          
+          {/* Filtri */}
+          <div className='mb-4 space-y-3'>
+            {/* Search bar */}
+            <input 
+              type='text' 
+              value={searchQuery} 
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t('medicationDetailPage.searchQuestions')}
+              className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+            />
+            
+            {/* Filtri lingua e data */}
+            <div className='flex flex-wrap gap-3 items-end'>
+              <div className='flex-1 min-w-[150px]'>
+                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                  {t('medicationDetailPage.filterByLanguage')}
+                </label>
+                <select 
+                  value={filterLang}
+                  onChange={(e) => setFilterLang(e.target.value)}
+                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+                >
+                  <option value='all'>{t('medicationDetailPage.allLanguages')}</option>
+                  {questionLanguages.map(lang => (
+                    <option key={lang} value={lang}>{LANGUAGE_MAP[lang] || lang.toUpperCase()}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className='flex-1 min-w-[150px]'>
+                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                  {t('medicationDetailPage.sortBy')}
+                </label>
+                <select 
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
+                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+                >
+                  <option value='newest'>{t('medicationDetailPage.newestFirst')}</option>
+                  <option value='oldest'>{t('medicationDetailPage.oldestFirst')}</option>
+                </select>
+              </div>
+              
+              <div className='flex-1 min-w-[150px]'>
+                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                  {t('medicationDetailPage.filterFromDate')}
+                </label>
+                <input 
+                  type='date'
+                  value={filterStartDate}
+                  onChange={(e) => setFilterStartDate(e.target.value)}
+                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+                />
+              </div>
+              
+              <div className='flex-1 min-w-[150px]'>
+                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                  {t('medicationDetailPage.filterToDate')}
+                </label>
+                <input 
+                  type='date'
+                  value={filterEndDate}
+                  onChange={(e) => setFilterEndDate(e.target.value)}
+                  className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+                />
+              </div>
+              
+              <button
+                onClick={handleResetFilters}
+                className='px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors'
+              >
+                {t('medicationDetailPage.resetFilters')}
+              </button>
+            </div>
+          </div>
+
+          {/* Questions list */}
+          {paginatedQuestions.length > 0 ? (
+            <>
+              <ul className='space-y-4'>
+                {paginatedQuestions.map(question => (
+                  <li key={question.id} className='border-b border-gray-200 pb-3'>
+                    <p className='text-gray-800'>{question.question}</p>
+                    <div className='text-xs text-gray-400 mt-1 flex items-center space-x-2'>
+                      <span>Language: {question.lang.toUpperCase()}</span>
+                      <span>-</span>
+                      <span>{new Date(question.timestamp).toLocaleDateString('it-IT')}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className='mt-6 flex justify-center items-center space-x-2'>
+                  <button 
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className='px-3 py-1 rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100'
+                  >
+                    &lt;
+                  </button>
+                  
+                  <span className='text-sm text-gray-600'>
+                    {t('medicationDetailPage.page')} {currentPage} {t('medicationDetailPage.of')} {totalPages} ({questionsPerPage} {t('medicationDetailPage.perPage')})
+                  </span>
+                  
+                  <button 
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className='px-3 py-1 rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100'
+                  >
+                    &gt;
+                  </button>
                 </div>
-              </li>
-            ))}
-          </ul>
+              )}
+            </>
+          ) : (
+            <p className='text-gray-500 text-center py-4'>{t('medicationDetailPage.noQuestionsFound')}</p>
+          )}
         </div>
       )}
     </div>

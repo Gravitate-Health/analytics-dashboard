@@ -52,7 +52,22 @@
         "languageFilterButton": "Aggregate",
         "graphTitle": "Interactions by language summary",
         "questionLanguageLabel": "Language:",
-        "questionsTitle": "User questions"
+        "questionsTitle": "User questions",
+        "question": "question",
+        "questions": "questions",
+        "searchQuestions": "Search questions...",
+        "filterByLanguage": "Filter by language",
+        "allLanguages": "All languages",
+        "sortBy": "Sort by date",
+        "newestFirst": "Newest first",
+        "oldestFirst": "Oldest first",
+        "filterFromDate": "From date",
+        "filterToDate": "To date",
+        "resetFilters": "Reset filters",
+        "page": "Page",
+        "of": "of",
+        "perPage": "per page",
+        "noQuestionsFound": "No questions found"
     },
     "reports": {
         "buttonText": "Export Report",
