@@ -4,6 +4,7 @@ import { Outlet } from 'react-router-dom';
 
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
+import SubFooter from '../components/SubFooter';
 
 
 const BaseLayout: React.FC = () => {
@@ -19,7 +20,12 @@ const BaseLayout: React.FC = () => {
       <div className="flex flex-col h-screen flex-1 min-w-0">
         <Header toggleSidebar={toggleSidebar}/>
         <main className="flex-1 overflow-y-auto hide-scrollbar">
-          <Outlet />
+          <div className="min-h-full flex flex-col">
+            <div className="flex-1">
+              <Outlet />
+            </div>
+            <SubFooter />
+          </div>
         </main>
       </div>
     </div>

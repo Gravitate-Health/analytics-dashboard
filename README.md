@@ -1,104 +1,84 @@
-# Gravitate Health – Firebase Analytics Dashboard
+# Gravitate Health – Analytics Dashboard
 
-This dashboard visualizes analytics events collected from Firebase Analytics (Google Analytics 4) for mobile apps (iOS and Android), **without using BigQuery** and **without requiring changes to the mobile apps**.
+This repository contains the source code for the **Gravitate Health Dashboard**, a web application developed to view and analyze telemetry events collected via **Firebase Analytics (Google Analytics 4)** originating from the project's mobile apps (iOS and Android).
 
----
-
-## 🧱 Project Structure
-
-The project is divided into two services:
-
-- `gravitate-health-backend`: Node.js + TypeScript + Google Analytics Data API
-- `gravitate-health-frontend`: React + TypeScript + TailwindCSS + Recharts
-
+The implemented approach allows viewing advanced usage metrics in real-time **without going through BigQuery** and without requiring any prior modifications to the existing mobile apps.
 
 ---
 
-## 🚀 Features
+## 🏗 Project Structure and Architecture
 
-- 📈 Events over time (line chart)
-- 📊 Event types (bar chart)
-- 🥧 Platforms (pie chart)
-- 🎯 Event selector to filter specific event
-- ✅ 30-day default range
-- 🔐 Secure read-only access using Google Service Account
-- 🔌 Fully Dockerized (frontend + backend)
+The system is split into two main components, designed to collaborate securely using a Backend-For-Frontend (BFF) pattern:
 
----
+1. **`frontend/` (Web Dashboard)**:
+   - Developed in **React 19** and **TypeScript**.
+   - **Routing:** Managed by `react-router-dom` v7 (Pages: Home, Dashboard, Medication List, Medication Detail).
+   - **Styling:** Responsive interface built with **TailwindCSS**.
+   - **Data Visualization:** Dynamic charts built with **Recharts** (timelines, bar charts, pie charts).
+   - **Exporting:** PDF report exporting functionality via `jspdf`.
+   - **Security:** Integrated authentication module (`AuthProvider` and `ProtectedRoute`) to restrict access to authorized users only.
 
-## ⚙️ Setup Instructions
-
-### 1. Backend
-
-1. Provide a Firebase-linked Google Analytics 4 property ID
-2. Create a Google Cloud **Service Account**, add it as a Viewer in GA4, and download `gravitate-service-account.json`
-3. Place the file in `backend/` and create `.env`:
-
-```
-PORT=3001
-GA4_PROPERTY_ID=YOUR_GA4_ID
-SERVICE_ACCOUNT_PATH=./gravitate-service-account.json
-```
-
-4. Backend will expose `/api/eventi` and support `/api/eventi?nome=EVENT_NAME`
+2. **`backend/` (Data Bridge API)**:
+   - Developed in **Node.js** and **Express** with **TypeScript**.
+   - **Integrations:** Uses `@google-analytics/data` and `firebase-admin` to securely query GA4 APIs.
+   - **Security:** Hides authentication logic towards Google Cloud from the frontend (using a `Service Account Key`).
+   - Exposes RESTful endpoints (e.g., `/api/eventi`, `/api/medications`, `/api/medication`) to return aggregated data. No telemetry data is saved in a local database.
 
 ---
 
-### 2. Frontend
+## 🚀 Key Features
 
-1. Create a `.env` in `frontend/`:
-
-```
-REACT_APP_API_URL=http://localhost:3001
-```
-
-2. If you build with Docker, this will be embedded into the compiled JS bundle.
+* 📈 **Time trends:** Visualization of events over time using line charts.
+* 📊 **Event types:** Bar charts to analyze the frequency of specific actions.
+* 🥧 **Platforms (OS):** Pie charts to segment the user base between Android and iOS.
+* 🎯 **Interactive filters:** Selectors to analyze a single specific event.
+* 📅 **Time ranges:** Default 30-day view, with filtering capabilities.
+* 📄 **PDF Export:** Ability to download data and rendered charts as a convenient document report.
 
 ---
 
-### 3. Run everything with Docker Compose
+## ⚙️ Local Setup Instructions
+
+### 1. Backend Configuration
+The backend needs to be authorized to read Google Analytics data associated with Firebase.
+1. Obtain or create a **Service Account** on Google Cloud Platform with "Viewer" permissions on the relevant GA4 property.
+2. Download the JSON key and name it `gravitate-service-account.json`. Place the file inside the `backend/` folder.
+3. Create a `.env` file inside `backend/`:
+   ```env
+   PORT=3001
+   GA4_PROPERTY_ID=INSERT_YOUR_GA4_PROPERTY_ID
+   SERVICE_ACCOUNT_PATH=./gravitate-service-account.json
+   ```
+
+### 2. Frontend Configuration
+The frontend needs to know where to contact the backend APIs.
+1. Create a `.env` file inside `frontend/`:
+   ```env
+   REACT_APP_API_URL=http://localhost:3001
+   ```
+*(Note: The activation of the login system can be verified/modified via the `ENABLE_LOGIN` parameter in the `src/utils/constants.ts` file).*
+
+---
+
+## 🐳 Running with Docker (Recommended)
+
+The project is fully containerized and ready to run.
+In the project root, run:
 
 ```bash
 docker compose up -d --build
 ```
 
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:3001/api/eventi
+This command will simultaneously start:
+- **Frontend App:** Accessible at `http://localhost:3000` (exposed via Nginx web server).
+- **Backend API:** Accessible at `http://localhost:3001`.
 
 ---
 
 ## 🌍 Internationalization (i18n)
 
-The frontend is built with localization using **`react-i18next`**. This setup allows for easy addition of new languages and lazy-loads translation files, keeping the initial bundle size small.
+The user interface natively supports multilanguage thanks to **`react-i18next`**, allowing "lazy" (asynchronous) loading of translations to avoid bloating the initial application bundle.
 
-### How it Works
-
-- Translation files are stored as static JSON files in `frontend/public/locales/`.
-- Each language has its own folder (e.g., `en` for English).
-- The main configuration can be found in `frontend/src/i18n.ts`.
-
-### Adding a New Language
-
-Adding a new language is a simple 3-step process. Let's use **German (`de`)** as an example:
-
-1.  **Create the Translation File**
-    Create a new folder and file: `frontend/public/locales/de/translation.json`. 
-
-2.  **Update i18next Configuration**
-    Add the new language code to the `supportedLngs` array in `frontend/src/i18n.ts` to make the system aware of it.
-    ```typescript
-    supportedLngs: ['en', 'de'], // Add 'de'
-    ```
-
----
-
----
-
-## 🔐 Notes
-
-- The frontend is statically built using React and served via Nginx
-- The backend uses `@google-analytics/data` to retrieve aggregated GA4 data (not raw event logs)
-- No data is stored locally; everything is fetched live from GA4
 
 ---
 

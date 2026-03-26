@@ -27,3 +27,26 @@ dist-ssr
 *.env
 frontend/.env
 backend/.env
+
+# Python
+venv/
+.venv/
+env/
+ENV/
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Deliverable outputs
+deliverable/
+deliverable/*
+
+tmp
+tmp/*
