@@ -50,3 +50,7 @@ deliverable/*
 
 tmp
 tmp/*
+
+# Google Cloud credentials
+*service-account*.json
+*-credentials.json
