@@ -1,85 +1,87 @@
-# Gravitate Health – Analytics Dashboard
+# Analytics Dashboard – Firebase GA4
 
-This repository contains the source code for the **Gravitate Health Dashboard**, a web application developed to view and analyze telemetry events collected via **Firebase Analytics (Google Analytics 4)** originating from the project's mobile apps (iOS and Android).
-
-The implemented approach allows viewing advanced usage metrics in real-time **without going through BigQuery** and without requiring any prior modifications to the existing mobile apps.
+A web application for viewing and analyzing Firebase Analytics (GA4) telemetry events collected from mobile apps (iOS and Android), built without BigQuery and without requiring any changes to the existing apps.
 
 ---
 
-## 🏗 Project Structure and Architecture
+## Architecture
 
-The system is split into two main components, designed to collaborate securely using a Backend-For-Frontend (BFF) pattern:
+The system follows a **Backend-For-Frontend (BFF)** pattern split into two components:
 
-1. **`frontend/` (Web Dashboard)**:
-   - Developed in **React 19** and **TypeScript**.
-   - **Routing:** Managed by `react-router-dom` v7 (Pages: Home, Dashboard, Medication List, Medication Detail).
-   - **Styling:** Responsive interface built with **TailwindCSS**.
-   - **Data Visualization:** Dynamic charts built with **Recharts** (timelines, bar charts, pie charts).
-   - **Exporting:** PDF report exporting functionality via `jspdf`.
-   - **Security:** Integrated authentication module (`AuthProvider` and `ProtectedRoute`) to restrict access to authorized users only.
+1. **`frontend/`** — React 19 + TypeScript web app
+   - Routing: `react-router-dom` v7 (Home, Dashboard, Medication List, Medication Detail)
+   - Styling: TailwindCSS
+   - Charts: Recharts (line, bar, pie)
+   - Export: PDF and CSV via `jspdf`
+   - i18n: `react-i18next` with lazy-loaded translations (EN, ES, IT)
+   - Auth: optional login system (`AuthProvider` + `ProtectedRoute`), toggled via `ENABLE_LOGIN` in `src/utils/constants.ts`
 
-2. **`backend/` (Data Bridge API)**:
-   - Developed in **Node.js** and **Express** with **TypeScript**.
-   - **Integrations:** Uses `@google-analytics/data` and `firebase-admin` to securely query GA4 APIs.
-   - **Security:** Hides authentication logic towards Google Cloud from the frontend (using a `Service Account Key`).
-   - Exposes RESTful endpoints (e.g., `/api/eventi`, `/api/medications`, `/api/medication`) to return aggregated data. No telemetry data is saved in a local database.
-
----
-
-## 🚀 Key Features
-
-* 📈 **Time trends:** Visualization of events over time using line charts.
-* 📊 **Event types:** Bar charts to analyze the frequency of specific actions.
-* 🥧 **Platforms (OS):** Pie charts to segment the user base between Android and iOS.
-* 🎯 **Interactive filters:** Selectors to analyze a single specific event.
-* 📅 **Time ranges:** Default 30-day view, with filtering capabilities.
-* 📄 **PDF Export:** Ability to download data and rendered charts as a convenient document report.
+2. **`backend/`** — Node.js + Express + TypeScript API
+   - Integrations: `@google-analytics/data` and `firebase-admin` to query GA4 APIs
+   - Hides Google Cloud credentials from the frontend (Service Account key stays server-side)
+   - RESTful endpoints: `/api/eventi`, `/api/medications`, `/api/medication`
+   - Stateless: no local database, all data is fetched live from GA4
 
 ---
 
-## ⚙️ Local Setup Instructions
+## Features
 
-### 1. Backend Configuration
-The backend needs to be authorized to read Google Analytics data associated with Firebase.
-1. Obtain or create a **Service Account** on Google Cloud Platform with "Viewer" permissions on the relevant GA4 property.
-2. Download the JSON key and name it `gravitate-service-account.json`. Place the file inside the `backend/` folder.
-3. Create a `.env` file inside `backend/`:
+### Dashboard
+- **Line chart** — event occurrences over time, filterable by event type and date range
+- **Bar chart** — frequency breakdown of all tracked event types (with human-readable labels)
+- **Pie chart** — platform split between Android and iOS
+- **Interactive filters** — event selector and time range selector (default: last 30 days)
+- **Export** — download current view as PDF or CSV
+
+### Medication Analytics
+- **Medication list** — searchable table showing all tracked medications and their total interaction counts
+- **Medication detail** — per-medication breakdown with:
+  - KPI cards per interaction type (Leaflet, Summary Leaflet, Focused Leaflet, Support Material, Chat)
+  - Bar chart of interactions broken down by language (English, Spanish, Italian)
+  - Language toggle to switch between total and per-language counts
+  - **Chat questions** — full list of questions users asked via the in-app chat, with:
+    - Full-text search
+    - Language filter
+    - Date range filter (from / to)
+    - Sort by newest or oldest
+    - Pagination (20 questions per page)
+  - **Export** — download medication report as PDF or CSV
+
+---
+
+## Local Setup
+
+### Backend
+
+1. Create a **Service Account** on Google Cloud Platform with Viewer access to the GA4 property.
+2. Download the JSON key and save it as `gravitate-service-account.json` inside `backend/`.
+3. Create `backend/.env`:
    ```env
    PORT=3001
-   GA4_PROPERTY_ID=INSERT_YOUR_GA4_PROPERTY_ID
+   GA4_PROPERTY_ID=YOUR_GA4_PROPERTY_ID
    SERVICE_ACCOUNT_PATH=./gravitate-service-account.json
    ```
 
-### 2. Frontend Configuration
-The frontend needs to know where to contact the backend APIs.
-1. Create a `.env` file inside `frontend/`:
+### Frontend
+
+1. Create `frontend/.env`:
    ```env
    REACT_APP_API_URL=http://localhost:3001
    ```
-*(Note: The activation of the login system can be verified/modified via the `ENABLE_LOGIN` parameter in the `src/utils/constants.ts` file).*
+
+> The login system is disabled by default. To enable it, set `ENABLE_LOGIN = true` in `frontend/src/utils/constants.ts`.
 
 ---
 
-## 🐳 Running with Docker (Recommended)
-
-The project is fully containerized and ready to run.
-In the project root, run:
+## Running with Docker (Recommended)
 
 ```bash
 docker compose up -d --build
 ```
 
-This command will simultaneously start:
-- **Frontend App:** Accessible at `http://localhost:3000` (exposed via Nginx web server).
-- **Backend API:** Accessible at `http://localhost:3001`.
+- **Frontend:** `http://localhost:3000` (served via Nginx)
+- **Backend API:** `http://localhost:3001`
 
 ---
 
-## 🌍 Internationalization (i18n)
-
-The user interface natively supports multilanguage thanks to **`react-i18next`**, allowing "lazy" (asynchronous) loading of translations to avoid bloating the initial application bundle.
-
-
----
-
-© 2025 Gravitate Health
+© 2026
